@@ -1,0 +1,78 @@
+<div class="order-detail">
+  <h1>Order #<%= @order.id %></h1>
+  
+  <div class="order-status">
+    <p>Status: <span class="status-<%= @order.status %>"><%= @order.status.humanize %></span></p>
+    <p>Date: <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  </div>
+  
+  <div class="order-items">
+    <h2>Items</h2>
+    
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @order.order_items.each do |item| %>
+          <tr>
+            <td>
+              <div class="product-info">
+                <% if item.product.images.attached? %>
+                  <%= image_tag item.product.images.first.variant(resize_to_fit: [60, 60]), alt: item.product.name %>
+                <% end %>
+                <span><%= item.product.name %></span>
+              </div>
+            </td>
+            <td><%= number_to_currency(item.price_at_purchase / 100.0) %></td>
+            <td><%= item.quantity %></td>
+            <td><%= number_to_currency(item.price_at_purchase * item.quantity / 100.0) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="order-summary">
+    <div class="summary-row">
+      <span>Subtotal:</span>
+      <span><%= number_to_currency(@order.subtotal / 100.0) %></span>
+    </div>
+    
+    <% if @order.gst_amount > 0 %>
+      <div class="summary-row">
+        <span>GST (<%= @order.gst_rate %>%):</span>
+        <span><%= number_to_currency(@order.gst_amount / 100.0) %></span>
+      </div>
+    <% end %>
+    
+    <% if @order.pst_amount > 0 %>
+      <div class="summary-row">
+        <span>PST (<%= @order.pst_rate %>%):</span>
+        <span><%= number_to_currency(@order.pst_amount / 100.0) %></span>
+      </div>
+    <% end %>
+    
+    <% if @order.hst_amount > 0 %>
+      <div class="summary-row">
+        <span>HST (<%= @order.hst_rate %>%):</span>
+        <span><%= number_to_currency(@order.hst_amount / 100.0) %></span>
+      </div>
+    <% end %>
+    
+    <div class="summary-row total">
+      <span>Total:</span>
+      <span><%= number_to_currency(@order.total / 100.0) %></span>
+    </div>
+  </div>
+  
+  <div class="order-actions">
+    <%= link_to 'Back to Orders', orders_path, class: 'btn-secondary' %>
+    <%= link_to 'Continue Shopping', products_path, class: 'btn-primary' %>
+  </div>
+</div>
