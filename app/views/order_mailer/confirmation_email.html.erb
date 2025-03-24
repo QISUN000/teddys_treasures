@@ -1,0 +1,80 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="text-align: center; padding: 20px 0;">
+    <h1 style="color: #1e2940;">Teddy's Treasures</h1>
+  </div>
+  
+  <div style="padding: 20px; border: 1px solid #e6e1d8; background-color: #f5f2ed;">
+    <h2 style="color: #1e2940;">Order Confirmation</h2>
+    <p>Dear <%= @user.first_name %>,</p>
+    <p>Thank you for your order! We're pleased to confirm that we've received your order and it's now being processed.</p>
+    
+    <div style="margin: 20px 0; padding: 10px; background-color: white;">
+      <h3 style="color: #1e2940;">Order #<%= @order.id %></h3>
+      <p>Date: <%= @order.created_at.strftime("%B %d, %Y") %></p>
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 1px solid #e6e1d8;">
+            <th style="text-align: left; padding: 10px;">Product</th>
+            <th style="text-align: right; padding: 10px;">Price</th>
+            <th style="text-align: right; padding: 10px;">Quantity</th>
+            <th style="text-align: right; padding: 10px;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @order.order_items.each do |item| %>
+            <tr style="border-bottom: 1px solid #e6e1d8;">
+              <td style="padding: 10px;"><%= item.product.name %></td>
+              <td style="text-align: right; padding: 10px;"><%= number_to_currency(item.price_at_purchase/100.0) %></td>
+              <td style="text-align: right; padding: 10px;"><%= item.quantity %></td>
+              <td style="text-align: right; padding: 10px;"><%= number_to_currency(item.price_at_purchase * item.quantity/100.0) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      
+      <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #e6e1d8;">
+        <table style="width: 100%;">
+          <tr>
+            <td style="text-align: right; padding: 5px;">Subtotal:</td>
+            <td style="text-align: right; padding: 5px; width: 100px;"><%= number_to_currency(@order.subtotal/100.0) %></td>
+          </tr>
+          
+          <% if @order.gst_amount > 0 %>
+            <tr>
+              <td style="text-align: right; padding: 5px;">GST (<%= @order.gst_rate %>%):</td>
+              <td style="text-align: right; padding: 5px;"><%= number_to_currency(@order.gst_amount/100.0) %></td>
+            </tr>
+          <% end %>
+          
+          <% if @order.pst_amount > 0 %>
+            <tr>
+              <td style="text-align: right; padding: 5px;">PST (<%= @order.pst_rate %>%):</td>
+              <td style="text-align: right; padding: 5px;"><%= number_to_currency(@order.pst_amount/100.0) %></td>
+            </tr>
+          <% end %>
+          
+          <% if @order.hst_amount > 0 %>
+            <tr>
+              <td style="text-align: right; padding: 5px;">HST (<%= @order.hst_rate %>%):</td>
+              <td style="text-align: right; padding: 5px;"><%= number_to_currency(@order.hst_amount/100.0) %></td>
+            </tr>
+          <% end %>
+          
+          <tr style="font-weight: bold;">
+            <td style="text-align: right; padding: 5px;">Total:</td>
+            <td style="text-align: right; padding: 5px;"><%= number_to_currency(@order.total/100.0) %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <p>We'll let you know when your order has been shipped. If you have any questions, please contact us at support@teddystreasures.com</p>
+    
+    <p>Thank you for shopping with Teddy's Treasures!</p>
+  </div>
+  
+  <div style="text-align: center; padding: 20px; color: #888; font-size: 12px;">
+    <p>© <%= Date.today.year %> Teddy's Treasures. All rights reserved.</p>
+  </div>
+</div>

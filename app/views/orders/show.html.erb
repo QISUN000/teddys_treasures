@@ -75,4 +75,96 @@
     <%= link_to 'Back to Orders', orders_path, class: 'btn-secondary' %>
     <%= link_to 'Continue Shopping', products_path, class: 'btn-primary' %>
   </div>
+
+   <% if @order.pending? %>
+    <div class="payment-section">
+      <h2>Payment</h2>
+      
+      <div id="payment-form">
+        <div class="form-row">
+          <label for="card-element">Credit or debit card</label>
+          <div id="card-element">
+            <!-- Stripe Elements will create form elements here -->
+          </div>
+          
+          <div id="card-errors" role="alert"></div>
+        </div>
+        
+        <button id="submit-payment" class="btn-primary">Pay <%= number_to_currency(@order.total/100.0) %></button>
+      </div>
+    </div>
+    
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Create a Stripe client
+        const stripe = Stripe('<%= Rails.configuration.stripe[:publishable_key] %>');
+        const elements = stripe.elements();
+        
+        // Style the Element
+        const style = {
+          base: {
+            fontSize: '16px',
+            color: '#32325d',
+            fontFamily: '"Montserrat", sans-serif',
+            '::placeholder': {
+              color: '#aab7c4'
+            }
+          },
+          invalid: {
+            color: '#fa755a',
+            iconColor: '#fa755a'
+          }
+        };
+        
+        // Create the card Element
+        const card = elements.create('card', {style: style});
+        
+        // Add the card Element to the page
+        card.mount('#card-element');
+        
+        // Handle form submission
+        const form = document.getElementById('payment-form');
+        const submitButton = document.getElementById('submit-payment');
+        const errorElement = document.getElementById('card-errors');
+        
+        submitButton.addEventListener('click', async (event) => {
+          event.preventDefault();
+          submitButton.disabled = true;
+          submitButton.textContent = 'Processing...';
+          
+          const {paymentMethod, error} = await stripe.createPaymentMethod({
+            type: 'card',
+            card: card
+          });
+          
+          if (error) {
+            errorElement.textContent = error.message;
+            submitButton.disabled = false;
+            submitButton.textContent = 'Pay <%= number_to_currency(@order.total/100.0) %>';
+          } else {
+            // Send paymentMethod.id to server
+            const result = await fetch('<%= process_payment_order_path(@order) %>', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+              },
+              body: JSON.stringify({
+                payment_method_id: paymentMethod.id
+              })
+            }).then(r => r.json());
+            
+            if (result.success) {
+              window.location.href = '<%= order_confirmation_path(@order) %>';
+            } else {
+              errorElement.textContent = result.error || 'An error occurred during payment.';
+              submitButton.disabled = false;
+              submitButton.textContent = 'Pay <%= number_to_currency(@order.total/100.0) %>';
+            }
+          }
+        });
+      });
+    </script>
+  <% end %>
 </div>

@@ -670,3 +670,277 @@ footer {
     gap: 40px;
   }
 }
+
+// Add to your application.scss
+
+// Authentication forms
+.auth-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-actions {
+    margin-top: 30px;
+    text-align: center;
+  }
+}
+
+// Search and filters
+.search-container {
+  margin-bottom: 30px;
+  
+  .search-form {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .search-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid $border-color;
+    }
+    
+    .btn-search {
+      padding: 10px 20px;
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  }
+  
+  .filter-options {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    
+    a {
+      padding: 5px 10px;
+      
+      &.active {
+        font-weight: bold;
+        border-bottom: 2px solid $primary-color;
+      }
+    }
+  }
+}
+
+// Checkout
+.checkout-page {
+  padding: 20px 40px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .checkout-columns {
+    display: flex;
+    gap: 40px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+  
+  .shipping-column,
+  .order-summary-column {
+    flex: 1;
+  }
+  
+  .section {
+    background-color: white;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    
+    h2 {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid $border-color;
+    }
+  }
+  
+  .saved-addresses {
+    margin-bottom: 30px;
+  }
+  
+  .address-option {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    
+    &:hover {
+      background-color: #f9f9f9;
+    }
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid $border-color;
+    }
+  }
+  
+  .cart-item-summary {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid $border-color;
+    
+    .item-image {
+      width: 60px;
+    }
+    
+    .item-details {
+      flex: 1;
+      padding-left: 15px;
+      
+      h4 {
+        margin-bottom: 5px;
+      }
+    }
+    
+    .item-price {
+      font-weight: 500;
+    }
+  }
+  
+  .order-totals {
+    margin-top: 20px;
+    
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      
+      &.grand-total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid $primary-color;
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+    
+    .taxes-note {
+      display: block;
+      font-size: 12px;
+      color: #999;
+      font-weight: normal;
+    }
+  }
+  
+  .checkout-actions {
+    margin-top: 30px;
+    
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+    }
+  }
+}
+
+// Order details
+.order-detail {
+  padding: 20px 40px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+  
+  h1 {
+    margin-bottom: 20px;
+  }
+  
+  .order-status {
+    margin-bottom: 30px;
+    
+    .status-pending { color: #f0ad4e; }
+    .status-paid { color: #5cb85c; }
+    .status-shipped { color: #0275d8; }
+    .status-delivered { color: #5cb85c; }
+    .status-cancelled { color: #d9534f; }
+  }
+  
+  .order-table {
+    width: 100%;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid $border-color;
+    }
+    
+    .product-info {
+      display: flex;
+      align-items: center;
+      
+      img {
+        margin-right: 15px;
+      }
+    }
+  }
+  
+  .order-summary {
+    margin-bottom: 30px;
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      
+      &.total {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px solid $primary-color;
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .order-actions {
+    display: flex;
+    gap: 15px;
+    
+    .btn-secondary {
+      padding: 10px 20px;
+      background-color: #f5f5f5;
+      border: 1px solid $border-color;
+    }
+  }
+}

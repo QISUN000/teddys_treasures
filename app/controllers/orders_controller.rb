@@ -105,4 +105,39 @@ class OrdersController < ApplicationController
   def calculate_subtotal(cart_items)
     cart_items.sum { |product, quantity| product.price * quantity }
   end
+
+  def process_payment
+    @order = Order.find(params[:id])
+    
+    # Only process payment for pending orders
+    unless @order.pending?
+      redirect_to order_path(@order), alert: 'This order has already been processed.'
+      return
+    end
+    
+    # Process payment through Stripe
+    service = StripeService.new(@order, payment_params)
+    result = service.process_payment
+    
+    if result[:success]
+      # Send confirmation email
+      OrderMailer.with(order: @order).confirmation_email.deliver_later if @order.user
+      
+      redirect_to order_confirmation_path(@order), notice: 'Payment successful! Your order has been confirmed.'
+    else
+      # Log error and redirect
+      Rails.logger.error("Payment failed: #{result[:error]}")
+      redirect_to order_path(@order), alert: "Payment failed: #{result[:error]}"
+    end
+  end
+  
+  def confirmation
+    @order = Order.find(params[:id])
+  end
+  
+  private
+  
+  def payment_params
+    params.permit(:payment_method_id, :email)
+  end
 end
