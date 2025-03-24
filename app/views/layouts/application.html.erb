@@ -1,27 +1,104 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Teddys Treasures" %></title>
+    <title>Teddy's Treasures</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+  
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   </head>
 
   <body>
-    <%= yield %>
+    <header>
+      <div class="header-container">
+        <nav class="main-nav">
+          <ul>
+            <li><%= link_to 'Catalog', products_path %></li>
+            <li><%= link_to 'About', '/about' %></li>
+            <li><%= link_to 'Customers', '#' %></li>
+            <li><%= link_to 'Contact', '/contact' %></li>
+          </ul>
+        </nav>
+        
+        <div class="logo">
+          <%= link_to root_path do %>
+            TEDDY'S<br>
+            <span>treasures</span>
+          <% end %>
+        </div>
+        
+        <div class="user-actions">
+          <ul>
+            <% if user_signed_in? %>
+              <li><%= link_to 'Favorites', '#' %></li>
+            <% else %>
+              <li><%= link_to 'Login', new_user_session_path %></li>
+            <% end %>
+            <li><%= link_to "Cart (#{cart_count})", cart_path %></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <% if notice || alert %>
+      <div class="flash-container">
+        <% if notice %><div class="notice"><%= notice %></div><% end %>
+        <% if alert %><div class="alert"><%= alert %></div><% end %>
+      </div>
+    <% end %>
+
+    <main>
+      <%= yield %>
+    </main>
+
+    <footer>
+      <div class="footer-container">
+        <div class="footer-logo">
+          <div class="logo">TEDDY'S<br><span>treasures</span></div>
+          <p>teddystreasures@gmail.com</p>
+          <p>+1 (204) 555-5555</p>
+          <div class="social-icons">
+            <a href="#">Facebook</a>
+            <a href="#">Instagram</a>
+            <a href="#">Twitter</a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <div class="column">
+            <h3>Catalog</h3>
+            <ul>
+              <% @categories.each do |category| %>
+                <li><%= link_to category.name, category_products_path(category) %></li>
+              <% end %>
+            </ul>
+          </div>
+          
+          <div class="column">
+            <h3>Customers</h3>
+            <ul>
+              <li><%= link_to 'Payment', '#' %></li>
+              <li><%= link_to 'Shipping', '#' %></li>
+              <li><%= link_to 'Returns', '#' %></li>
+            </ul>
+          </div>
+          
+          <div class="column">
+            <h3>Documents</h3>
+            <ul>
+              <li><%= link_to 'Privacy Policy', '#' %></li>
+              <li><%= link_to 'Terms & Conditions', '#' %></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="copyright">
+        <p>© <%= Date.today.year %> Teddy's Treasures. All rights reserved.</p>
+      </div>
+    </footer>
   </body>
 </html>

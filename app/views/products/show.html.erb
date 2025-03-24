@@ -1,0 +1,152 @@
+<div class="product-detail">
+  <div class="breadcrumb">
+    <%= link_to 'Catalog', products_path %> / 
+    <% if @product.categories.any? %>
+      <%= link_to @product.categories.first.name, category_products_path(@product.categories.first) %> / 
+    <% end %>
+    <%= @product.name %>
+  </div>
+  
+  <div class="product-content">
+    <div class="product-images">
+      <% if @product.images.attached? %>
+        <div class="main-image">
+          <%= image_tag @product.images.first, alt: @product.name, id: 'main-image' %>
+        </div>
+        
+        <% if @product.images.count > 1 %>
+          <div class="thumbnails">
+            <% @product.images.each_with_index do |image, index| %>
+              <div class="thumbnail" data-index="<%= index %>">
+                <%= image_tag image, alt: "#{@product.name} - thumbnail #{index + 1}" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+    
+    <div class="product-info">
+      <h1><%= @product.name %></h1>
+      <p class="price"><%= number_to_currency(@product.price/100.0) %></p>
+      
+      <%= form_with url: add_item_cart_path, method: :post do |f| %>
+        <%= f.hidden_field :product_id, value: @product.id %>
+        
+        <div class="product-options">
+          <div class="size-options">
+            <p>Size:</p>
+            <div class="size-selector">
+              <label>
+                <input type="radio" name="size" value="XS" checked>
+                <span>XS (neck 20-26 cm, width 1.5 cm)</span>
+              </label>
+              <label>
+                <input type="radio" name="size" value="S">
+                <span>S (neck 27-32 cm, width 1.5 cm)</span>
+              </label>
+              <label>
+                <input type="radio" name="size" value="M">
+                <span>M (neck 32-38 cm, width 2 cm)</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="color-options">
+            <p>Color:</p>
+            <div class="color-selector">
+              <label>
+                <input type="radio" name="color" value="brown" checked>
+                <span class="color brown"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="product-actions">
+          <div class="quantity">
+            <button type="button" class="minus">-</button>
+            <%= f.number_field :quantity, value: 1, min: 1 %>
+            <button type="button" class="plus">+</button>
+          </div>
+          
+          <%= f.submit 'ADD TO CART', class: 'btn-primary' %>
+          <button type="button" class="btn-favorite">♡</button>
+        </div>
+      <% end %>
+      
+      <div class="product-description">
+        <p><%= @product.description %></p>
+      </div>
+      
+      <div class="product-details">
+        <div class="detail-section">
+          <h3>MATERIALS</h3>
+          <p>Outer layer: 100% polyester<br>Inner layer: 100% plush</p>
+        </div>
+        
+        <div class="detail-section">
+          <h3>HOW TO MEASURE YOUR DOG</h3>
+          <p>To determine the right collar size, measure your dog's neck circumference and add 1-2 cm for comfort.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <% if @related_products.any? %>
+    <div class="related-products">
+      <h2>YOU MAY ALSO LIKE</h2>
+      
+      <div class="products-grid">
+        <% @related_products.each do |product| %>
+          <div class="product-card">
+            <%= link_to product_path(product) do %>
+              <% if product.images.attached? %>
+                <%= image_tag product.images.first, alt: product.name %>
+              <% end %>
+              <h3><%= product.name %></h3>
+              <p class="price"><%= number_to_currency(product.price/100.0) %></p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  // Image gallery functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const mainImage = document.getElementById('main-image');
+    
+    if (thumbnails.length > 0 && mainImage) {
+      thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', function() {
+          const imageUrl = thumb.querySelector('img').src;
+          mainImage.src = imageUrl;
+          thumbnails.forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+        });
+      });
+      thumbnails[0].classList.add('active');
+    }
+    
+    // Quantity controls
+    const minusBtn = document.querySelector('.minus');
+    const plusBtn = document.querySelector('.plus');
+    const quantityInput = document.querySelector('input[name="quantity"]');
+    
+    if (minusBtn && plusBtn && quantityInput) {
+      minusBtn.addEventListener('click', function() {
+        const currentValue = parseInt(quantityInput.value);
+        if (currentValue > 1) quantityInput.value = currentValue - 1;
+      });
+      
+      plusBtn.addEventListener('click', function() {
+        const currentValue = parseInt(quantityInput.value);
+        quantityInput.value = currentValue + 1;
+      });
+    }
+  });
+</script>

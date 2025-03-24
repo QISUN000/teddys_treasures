@@ -1,0 +1,185 @@
+<div class="cart-page">
+  <h1>CART (<%= cart_count %>)</h1>
+  
+  <% if current_cart.empty? %>
+    <div class="empty-cart">
+      <p>Your cart is empty</p>
+      <%= link_to 'Browse Catalog', products_path, class: 'btn-primary' %>
+    </div>
+  <% else %>
+    <div class="cart-items">
+      <% current_cart.each do |product, quantity| %>
+        <div class="cart-item">
+          <div class="item-image">
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first, alt: product.name %>
+            <% end %>
+          </div>
+          
+          <div class="item-details">
+            <h3><%= product.name %></h3>
+            <p>Color: Brown</p>
+            <p>Size: XS (neck 20-26 cm, width 1.5 cm)</p>
+            <p>ID: <%= product.id %></p>
+          </div>
+          
+          <div class="item-quantity">
+            <%= form_with url: update_quantity_cart_path, method: :post do |f| %>
+              <%= f.hidden_field :product_id, value: product.id %>
+              <button type="button" class="btn-minus">-</button>
+              <%= f.number_field :quantity, value: quantity, min: 1 %>
+              <button type="button" class="btn-plus">+</button>
+            <% end %>
+          </div>
+          
+          <div class="item-price">
+            <%= number_to_currency(product.price * quantity / 100.0) %>
+          </div>
+          
+          <div class="item-remove">
+            <%= link_to remove_item_cart_path(product_id: product.id), method: :post, class: 'btn-remove' do %>
+              ✕
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Total:</span>
+        <span><%= number_to_currency(cart_total / 100.0) %></span>
+      </div>
+      
+      <div class="proceed-checkout">
+        <button id="checkout-btn" class="btn-primary">CHECKOUT</button>
+      </div>
+    </div>
+    
+    <div id="checkout-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Your Order</h2>
+        
+        <div class="order-summary">
+          <% current_cart.each do |product, quantity| %>
+            <div class="order-item">
+              <div class="item-image">
+                <% if product.images.attached? %>
+                  <%= image_tag product.images.first, alt: product.name %>
+                <% end %>
+              </div>
+              
+              <div class="item-details">
+                <h4><%= product.name %></h4>
+                <p>
+                  Color: Brown<br>
+                  Size: XS<br>
+                  Quantity: <%= quantity %>
+                </p>
+              </div>
+              
+              <div class="item-price">
+                <%= number_to_currency(product.price * quantity / 100.0) %>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="order-total">
+            <span>Total:</span>
+            <span><%= number_to_currency(cart_total / 100.0) %></span>
+          </div>
+        </div>
+        
+        <div class="customer-info">
+          <h3>Your Information</h3>
+          
+          <%= form_with url: orders_path, method: :post, id: 'checkout-form' do |f| %>
+            <div class="form-group">
+              <%= f.label :name, 'Your Name' %>
+              <%= f.text_field :name, required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :phone, 'Phone' %>
+              <div class="phone-input">
+                <span class="country-code">+1</span>
+                <%= f.text_field :phone, required: true, placeholder: '(204) 555-5555' %>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :email, 'Email' %>
+              <%= f.email_field :email, required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :promocode, 'Promo Code (optional)' %>
+              <%= f.text_field :promocode %>
+            </div>
+            
+            <h3>Shipping</h3>
+            
+            <div class="form-group">
+              <%= f.label :city, 'City' %>
+              <%= f.text_field :city, required: true %>
+            </div>
+            
+            <div class="form-actions">
+              <%= f.submit 'PLACE ORDER', class: 'btn-primary' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Quantity buttons
+    const minusBtns = document.querySelectorAll('.btn-minus');
+    const plusBtns = document.querySelectorAll('.btn-plus');
+    
+    minusBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.nextElementSibling;
+        const value = parseInt(input.value);
+        if (value > 1) {
+          input.value = value - 1;
+          this.closest('form').submit();
+        }
+      });
+    });
+    
+    plusBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const value = parseInt(input.value);
+        input.value = value + 1;
+        this.closest('form').submit();
+      });
+    });
+    
+    // Checkout modal
+    const modal = document.getElementById('checkout-modal');
+    const btn = document.getElementById('checkout-btn');
+    const span = document.querySelector('.close');
+    
+    if (btn && modal && span) {
+      btn.onclick = function() {
+        modal.style.display = 'block';
+      }
+      
+      span.onclick = function() {
+        modal.style.display = 'none';
+      }
+      
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      }
+    }
+  });
+</script>
