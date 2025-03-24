@@ -1,0 +1,23 @@
+<div class="search-container">
+  <%= form_with url: search_products_path, method: :get, local: true, class: 'search-form' do |f| %>
+    <div class="search-inputs">
+      <%= f.text_field :query, placeholder: 'Search products...', value: @query %>
+      
+      <%= f.select :category_id, 
+                  options_for_select([['All Categories', '']] + 
+                                      @categories.map{ |c| [c.name, c.id] }, 
+                                      params[:category_id]), {}, 
+                  { class: 'category-select' } %>
+      
+      <%= f.submit 'Search', class: 'btn-search' %>
+    </div>
+    
+    <div class="filter-options">
+      <span>Filter:</span>
+      <%= link_to 'All Products', products_path, class: params[:filter].blank? ? 'active' : '' %>
+      <%= link_to 'On Sale', products_path(filter: 'on_sale'), class: params[:filter] == 'on_sale' ? 'active' : '' %>
+      <%= link_to 'New Arrivals', products_path(filter: 'new'), class: params[:filter] == 'new' ? 'active' : '' %>
+      <%= link_to 'Recently Updated', products_path(filter: 'updated'), class: params[:filter] == 'updated' ? 'active' : '' %>
+    </div>
+  <% end %>
+</div>

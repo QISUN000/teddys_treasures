@@ -1,0 +1,122 @@
+<div class="checkout-page">
+  <h1>Checkout</h1>
+  
+  <%= form_with url: orders_path, method: :post, id: 'checkout-form' do |f| %>
+    <div class="checkout-columns">
+      <div class="shipping-column">
+        <div class="section">
+          <h2>Shipping Address</h2>
+          
+          <% if @addresses.present? %>
+            <div class="saved-addresses">
+              <h3>Your Addresses</h3>
+              
+              <% @addresses.each do |address| %>
+                <div class="address-option">
+                  <%= f.radio_button :address_id, address.id, checked: address == @address %>
+                  <label for="address_id_<%= address.id %>">
+                    <%= address.street %><br>
+                    <%= address.city %>, <%= address.province.code %> <%= address.postal_code %><br>
+                  </label>
+                </div>
+              <% end %>
+              
+              <div class="address-option">
+                <%= f.radio_button :address_id, 'new', checked: @address.new_record? %>
+                <label for="address_id_new">Use a new address</label>
+              </div>
+            </div>
+          <% end %>
+          
+          <div id="new-address-form" class="<%= @address.new_record? || @addresses.blank? ? '' : 'hidden' %>">
+            <div class="form-group">
+              <%= f.label :street %>
+              <%= f.text_field :street, value: @address.street, required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :city %>
+              <%= f.text_field :city, value: @address.city, required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :postal_code %>
+              <%= f.text_field :postal_code, value: @address.postal_code, required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :province_id %>
+              <%= f.collection_select :province_id, @provinces, :id, :name, { selected: @address.province_id }, { required: true } %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="order-summary-column">
+        <div class="section">
+          <h2>Order Summary</h2>
+          
+          <div class="cart-items">
+            <% @cart_items.each do |product, quantity| %>
+              <div class="cart-item-summary">
+                <div class="item-image">
+                  <% if product.images.attached? %>
+                    <%= image_tag product.images.first.variant(resize_to_fit: [60, 60]), alt: product.name %>
+                  <% end %>
+                </div>
+                
+                <div class="item-details">
+                  <h4><%= product.name %></h4>
+                  <p>Quantity: <%= quantity %></p>
+                </div>
+                
+                <div class="item-price">
+                  <%= number_to_currency(product.price * quantity / 100.0) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="order-totals">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span><%= number_to_currency(calculate_subtotal(@cart_items) / 100.0) %></span>
+            </div>
+            
+            <div class="total-row">
+              <span>Shipping:</span>
+              <span>FREE</span>
+            </div>
+            
+            <div class="total-row grand-total">
+              <span>Total:</span>
+              <span><%= number_to_currency(calculate_subtotal(@cart_items) / 100.0) %></span>
+              <span class="taxes-note">(Taxes will be calculated based on shipping address)</span>
+            </div>
+          </div>
+          
+          <div class="checkout-actions">
+            <%= f.submit 'Place Order', class: 'btn-primary' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const addressRadios = document.querySelectorAll('input[name="address_id"]');
+    const newAddressForm = document.getElementById('new-address-form');
+    
+    addressRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        if (this.value === 'new') {
+          newAddressForm.classList.remove('hidden');
+        } else {
+          newAddressForm.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>

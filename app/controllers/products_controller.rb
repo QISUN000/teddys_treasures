@@ -1,32 +1,29 @@
-class ProductsController < ApplicationController
-  def index
-    @products = Product.all.page(params[:page]).per(12)
+def index
+  @products = Product.all
+  
+  # Filter by category
+  if params[:category_id].present?
+    @category = Category.find_by(id: params[:category_id])
+    @products = @products.joins(:categories).where(categories: { id: params[:category_id] }) if @category
   end
-
-  def show
-    @product = Product.find(params[:id])
-    @related_products = @product.categories.flat_map(&:products).uniq - [@product]
-    @related_products = @related_products.sample(4)
-  end
-
-  def category
-    @category = Category.find(params[:id])
-    @products = @category.products.page(params[:page]).per(12)
-    render :index
-  end
-
-  def search
-    @query = params[:query]
-    @category_id = params[:category_id]
-    
-    @products = Product.where("name ILIKE ? OR description ILIKE ?", "%#{@query}%", "%#{@query}%")
-    
-    if @category_id.present? && @category_id != "all"
-      @category = Category.find(@category_id)
-      @products = @products.joins(:categories).where(categories: { id: @category_id })
+  
+  # Filter by status
+  if params[:filter].present?
+    case params[:filter]
+    when 'on_sale'
+      @products = @products.where(on_sale: true)
+    when 'new'
+      @products = @products.where('created_at >= ?', 1.month.ago)
+    when 'updated'
+      @products = @products.where('updated_at >= ?', 1.week.ago)
     end
-    
-    @products = @products.page(params[:page]).per(12)
-    render :index
   end
+  
+  # Search by keyword
+  if params[:query].present?
+    @query = params[:query].strip
+    @products = @products.where("name ILIKE ? OR description ILIKE ?", "%#{@query}%", "%#{@query}%")
+  end
+  
+  @products = @products.page(params[:page]).per(12)
 end
