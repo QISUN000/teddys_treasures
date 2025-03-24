@@ -61,3 +61,33 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+# Authentication
+gem 'devise'
+
+# File uploads
+gem 'image_processing', '~> 1.2'
+
+# Pagination
+gem 'kaminari'
+
+# Styling
+gem 'sassc-rails'
+
+# Admin dashboard
+gem 'activeadmin'
+
+# Forms
+gem 'simple_form'
+
+# Environment variables
+gem 'dotenv-rails', groups: [:development, :test]
+
+# Seeds with sample data
+gem 'faker', group: [:development, :test]
+
+# Debugging
+group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller'
+end
