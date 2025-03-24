@@ -2,7 +2,7 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!, except: [:guest_checkout]
   
   def index
-    @orders = current_user.orders.order(created_at: :desc)
+    @orders = current_user.orders.order(created_at: :desc).page(params[:page]).per(10)
   end
   
   def show
@@ -140,4 +140,5 @@ class OrdersController < ApplicationController
   def payment_params
     params.permit(:payment_method_id, :email)
   end
+  
 end
