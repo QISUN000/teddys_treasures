@@ -1,134 +1,185 @@
-<div class="cart-page">
-  <h1>CART (<%= cart_count %>)</h1>
+<div class="container py-5">
+  <h1 class="mb-4">Your Cart <span class="badge bg-secondary"><%= cart_count %></span></h1>
   
   <% if current_cart.empty? %>
-    <div class="empty-cart">
-      <p>Your cart is empty</p>
-      <%= link_to 'Browse Catalog', products_path, class: 'btn-primary' %>
+    <div class="card text-center py-5">
+      <div class="card-body">
+        <h5 class="card-title">Your cart is empty</h5>
+        <p class="card-text">Start shopping to add items to your cart</p>
+        <%= link_to 'Browse Catalog', products_path, class: 'btn btn-primary' %>
+      </div>
     </div>
   <% else %>
-    <div class="cart-items">
-      <% current_cart.each do |product, quantity| %>
-        <div class="cart-item">
-          <div class="item-image">
-            <% if product.images.attached? %>
-              <%= image_tag product.images.first, alt: product.name %>
-            <% end %>
-          </div>
-          
-          <div class="item-details">
-            <h3><%= product.name %></h3>
-            <p>Color: Brown</p>
-            <p>Size: XS (neck 20-26 cm, width 1.5 cm)</p>
-            <p>ID: <%= product.id %></p>
-          </div>
-          
-          <div class="item-quantity">
-            <%= form_with url: update_quantity_cart_path, method: :post do |f| %>
-              <%= f.hidden_field :product_id, value: product.id %>
-              <button type="button" class="btn-minus">-</button>
-              <%= f.number_field :quantity, value: quantity, min: 1 %>
-              <button type="button" class="btn-plus">+</button>
-            <% end %>
-          </div>
-          
-          <div class="item-price">
-            <%= number_to_currency(product.price * quantity / 100.0) %>
-          </div>
-          
-          <div class="item-remove">
-            <%= link_to remove_item_cart_path(product_id: product.id), method: :post, class: 'btn-remove' do %>
-              ✕
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-body">
+            <% @cart_items.each do |product, quantity| %>
+              <div class="row mb-4 border-bottom pb-3">
+                <div class="col-md-3">
+                  <% if product.images.attached? %>
+                    <%= image_tag product.images.first, class: "img-fluid rounded", alt: product.name %>
+                  <% else %>
+                    <%= image_tag 'placeholder-product.png', class: "img-fluid rounded", alt: 'No image available' %>
+                  <% end %>
+                </div>
+                
+                <div class="col-md-5">
+                  <h5 class="mb-1"><%= product.name %></h5>
+                  <% if product.on_sale? %>
+                    <span class="badge bg-danger mb-2">SALE</span>
+                  <% end %>
+                  <p class="text-muted mb-1">Color: Brown</p>
+                  <p class="text-muted">Size: XS (neck 20-26 cm, width 1.5 cm)</p>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <%= form_with url: update_quantity_cart_path, method: :post, class: "d-flex align-items-center" do |f| %>
+                      <%= f.hidden_field :product_id, value: product.id %>
+                      <div class="input-group" style="width: 120px;">
+                        <button class="btn btn-outline-secondary btn-minus" type="button">−</button>
+                        <%= f.number_field :quantity, value: quantity, min: 1, class: "form-control text-center quantity-input" %>
+                        <button class="btn btn-outline-secondary btn-plus" type="button">+</button>
+                      </div>
+                    <% end %>
+                    
+                    <%= link_to remove_item_cart_path(product_id: product.id), method: :post, 
+                        class: "btn btn-sm btn-outline-danger", 
+                        data: { confirm: 'Remove this item from cart?' } do %>
+                      <i class="bi bi-trash"></i>
+                    <% end %>
+                  </div>
+                  
+                  <div class="text-end">
+                    <h5 class="mb-0"><%= number_to_currency(product.price * quantity / 100.0) %></h5>
+                    <% if quantity > 1 %>
+                      <small class="text-muted"><%= number_to_currency(product.price / 100.0) %> each</small>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
             <% end %>
           </div>
         </div>
-      <% end %>
-    </div>
-    
-    <div class="cart-summary">
-      <div class="summary-row">
-        <span>Total:</span>
-        <span><%= number_to_currency(cart_total / 100.0) %></span>
       </div>
       
-      <div class="proceed-checkout">
-        <button id="checkout-btn" class="btn-primary">CHECKOUT</button>
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Order Summary</h5>
+            
+            <ul class="list-group list-group-flush mb-3">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Subtotal</span>
+                <span><%= number_to_currency(cart_total / 100.0) %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Shipping</span>
+                <span>Calculated at checkout</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center fw-bold fs-5">
+                <span>Total</span>
+                <span><%= number_to_currency(cart_total / 100.0) %></span>
+              </li>
+            </ul>
+            
+            <button class="btn btn-primary w-100 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+              PROCEED TO CHECKOUT
+            </button>
+            <%= link_to 'Continue Shopping', products_path, class: 'btn btn-outline-secondary w-100' %>
+          </div>
+        </div>
       </div>
     </div>
     
-    <div id="checkout-modal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Your Order</h2>
-        
-        <div class="order-summary">
-          <% current_cart.each do |product, quantity| %>
-            <div class="order-item">
-              <div class="item-image">
-                <% if product.images.attached? %>
-                  <%= image_tag product.images.first, alt: product.name %>
-                <% end %>
-              </div>
-              
-              <div class="item-details">
-                <h4><%= product.name %></h4>
-                <p>
-                  Color: Brown<br>
-                  Size: XS<br>
-                  Quantity: <%= quantity %>
-                </p>
-              </div>
-              
-              <div class="item-price">
-                <%= number_to_currency(product.price * quantity / 100.0) %>
-              </div>
-            </div>
-          <% end %>
-          
-          <div class="order-total">
-            <span>Total:</span>
-            <span><%= number_to_currency(cart_total / 100.0) %></span>
+    <!-- Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="checkoutModalLabel">Complete Your Order</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        </div>
-        
-        <div class="customer-info">
-          <h3>Your Information</h3>
           
-          <%= form_with url: orders_path, method: :post, id: 'checkout-form' do |f| %>
-            <div class="form-group">
-              <%= f.label :name, 'Your Name' %>
-              <%= f.text_field :name, required: true %>
-            </div>
-            
-            <div class="form-group">
-              <%= f.label :phone, 'Phone' %>
-              <div class="phone-input">
-                <span class="country-code">+1</span>
-                <%= f.text_field :phone, required: true, placeholder: '(204) 555-5555' %>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="mb-3">Order Summary</h6>
+                <% @cart_items.each do |product, quantity| %>
+                  <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                      <% if product.images.attached? %>
+                        <%= image_tag product.images.first, class: "img-fluid rounded", style: "width: 72px;", alt: product.name %>
+                      <% end %>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                      <h6 class="my-0"><%= product.name %></h6>
+                      <small class="text-muted">Qty: <%= quantity %></small>
+                    </div>
+                    <div class="text-end">
+                      <span class="text-muted"><%= number_to_currency(product.price * quantity / 100.0) %></span>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <hr>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Subtotal</span>
+                  <span><%= number_to_currency(cart_total / 100.0) %></span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Shipping</span>
+                  <span>—</span>
+                </div>
+                <div class="d-flex justify-content-between fw-bold">
+                  <span>Total</span>
+                  <span><%= number_to_currency(cart_total / 100.0) %></span>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <h6 class="mb-3">Shipping Information</h6>
+                <%= form_with url: checkout_path, method: :post, id: 'checkout-form' do |f| %>
+  <div class="mb-3">
+    <%= f.label :email, 'Email address', class: 'form-label' %>
+    <%= f.email_field :email, class: 'form-control', required: true %>
+  </div>
+  
+  <div class="mb-3">
+    <%= f.label :phone, 'Phone number', class: 'form-label' %>
+    <%= f.telephone_field :phone, class: 'form-control', required: true %>
+  </div>
+  
+  <!-- Replace fields_for with explicit address fields -->
+  <div class="mb-3">
+    <%= f.label :street, 'Address', class: 'form-label' %>
+    <%= f.text_field 'address[street]', class: 'form-control', required: true %>
+  </div>
+  
+  <div class="row g-2 mb-3">
+    <div class="col-md-6">
+      <%= f.label :city, 'City', class: 'form-label' %>
+      <%= f.text_field 'address[city]', class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-6">
+      <%= f.label :postal_code, 'ZIP Code', class: 'form-label' %>
+      <%= f.text_field 'address[postal_code]', class: 'form-control', required: true %>
+    </div>
+  </div>
+  
+  <div class="mb-3">
+    <%= f.label :province_id, 'Province', class: 'form-label' %>
+    <%= f.collection_select 'address[province_id]', Province.all, :id, :name, {}, class: 'form-select', required: true %>
+  </div>
+  
+  <hr class="my-4">
+  
+  <button class="w-100 btn btn-primary btn-lg" type="submit">PLACE ORDER</button>
+<% end %>
               </div>
             </div>
-            
-            <div class="form-group">
-              <%= f.label :email, 'Email' %>
-              <%= f.email_field :email, required: true %>
-            </div>
-            
-            <div class="form-group">
-              <%= f.label :promocode, 'Promo Code (optional)' %>
-              <%= f.text_field :promocode %>
-            </div>
-            
-            <h3>Shipping</h3>
-            
-            <div class="form-group">
-              <%= f.label :city, 'City' %>
-              <%= f.text_field :city, required: true %>
-            </div>
-            
-            <div class="form-actions">
-              <%= f.submit 'PLACE ORDER', class: 'btn-primary' %>
-            </div>
-          <% end %>
+          </div>
         </div>
       </div>
     </div>
@@ -137,49 +188,30 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Quantity buttons
-    const minusBtns = document.querySelectorAll('.btn-minus');
-    const plusBtns = document.querySelectorAll('.btn-plus');
-    
-    minusBtns.forEach(btn => {
+    // Quantity controls
+    document.querySelectorAll('.btn-minus').forEach(btn => {
       btn.addEventListener('click', function() {
-        const input = this.nextElementSibling;
-        const value = parseInt(input.value);
-        if (value > 1) {
-          input.value = value - 1;
-          this.closest('form').submit();
+        const input = this.closest('.input-group').querySelector('.quantity-input');
+        if (parseInt(input.value) > 1) {
+          input.value = parseInt(input.value) - 1;
+          input.dispatchEvent(new Event('change'));
         }
       });
     });
     
-    plusBtns.forEach(btn => {
+    document.querySelectorAll('.btn-plus').forEach(btn => {
       btn.addEventListener('click', function() {
-        const input = this.previousElementSibling;
-        const value = parseInt(input.value);
-        input.value = value + 1;
+        const input = this.closest('.input-group').querySelector('.quantity-input');
+        input.value = parseInt(input.value) + 1;
+        input.dispatchEvent(new Event('change'));
+      });
+    });
+    
+    // Auto-submit when quantity changes
+    document.querySelectorAll('.quantity-input').forEach(input => {
+      input.addEventListener('change', function() {
         this.closest('form').submit();
       });
     });
-    
-    // Checkout modal
-    const modal = document.getElementById('checkout-modal');
-    const btn = document.getElementById('checkout-btn');
-    const span = document.querySelector('.close');
-    
-    if (btn && modal && span) {
-      btn.onclick = function() {
-        modal.style.display = 'block';
-      }
-      
-      span.onclick = function() {
-        modal.style.display = 'none';
-      }
-      
-      window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = 'none';
-        }
-      }
-    }
   });
 </script>

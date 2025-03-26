@@ -1,0 +1,55 @@
+<!-- app/views/admin/categories/index.html.erb -->
+<div class="table_tools">
+  <div class="scopes">
+    <span class="scope selected">
+      <a href="#">All</a>
+    </span>
+  </div>
+</div>
+
+<div class="index_as_table">
+  <div class="paginated_collection">
+    <div class="pagination_information">
+      Displaying <b>all <%= @categories.count %></b> Categories
+    </div>
+    
+    <table border="0" cellspacing="0" cellpadding="0" id="index_table_categories" class="index_table index">
+      <thead>
+        <tr>
+          <th class="sortable col col-id">ID</th>
+          <th class="sortable col col-name">Name</th>
+          <th class="sortable col col-description">Description</th>
+          <th class="sortable col col-image">Image</th>
+          <th class="sortable col col-created_at">Created At</th>
+          <th class="col col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @categories.each do |category| %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <td class="col col-id"><%= category.id %></td>
+            <td class="col col-name"><%= category.name %></td>
+            <td class="col col-description"><%= truncate(category.description.to_s, length: 100) %></td>
+            <td class="col col-image">
+              <% if category.image.attached? %>
+                <%= image_tag url_for(category.image), width: '100' %>
+              <% end %>
+            </td>
+            <td class="col col-created_at"><%= category.created_at %></td>
+            <td class="col col-actions">
+              <div class="table_actions">
+                <%= link_to "View", admin_category_path(category), class: "view_link member_link" %>
+                <%= link_to "Edit", edit_admin_category_path(category), class: "edit_link member_link" %>
+                <%= link_to "Delete", admin_category_path(category), method: :delete, data: { confirm: "Are you sure?" }, class: "delete_link member_link" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="new-resource">
+  <%= link_to "New Category", new_admin_category_path, class: "button" %>
+</div>

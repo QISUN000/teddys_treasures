@@ -129,4 +129,4 @@ harness.categories << Category.find_by(name: 'Harnesses')
 leash.categories << Category.find_by(name: 'Leashes')
 bed.categories << Category.find_by(name: 'Beds')
 
-puts "Seed completed successfully!"
+puts "Seed completed successfully!"AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?

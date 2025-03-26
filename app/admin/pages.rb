@@ -1,3 +1,4 @@
+# app/admin/pages.rb
 ActiveAdmin.register Page do
   permit_params :title, :content, :slug
 
@@ -6,11 +7,7 @@ ActiveAdmin.register Page do
     id_column
     column :title
     column :slug
-    column :content do |page|
-      truncate(page.content, length: 100)
-    end
     column :created_at
-    column :updated_at
     actions
   end
 

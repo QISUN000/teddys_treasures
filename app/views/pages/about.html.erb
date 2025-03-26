@@ -1,0 +1,94 @@
+<div class="about-page">
+  <div class="hero about-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">ABOUT US</h1>
+    </div>
+  </div>
+
+  <div class="about-container">
+    <section class="about-section">
+      <h2>Our Story</h2>
+      <div class="section-content">
+        <div class="text-column">
+          <p>Teddy's Treasures was founded in 2020 by Polina Maximenko, a passionate dog lover and textile designer from Winnipeg, Manitoba.</p>
+          
+          <p>The idea came to life when Polina was searching for beautiful, high-quality accessories for her beloved Bichon Frise, Teddy. Unable to find products that matched both Teddy's comfort needs and her own aesthetic standards, she decided to create her own.</p>
+          
+          <p>What started as handmade collars and harnesses for Teddy quickly grew into a small business as friends and family began requesting custom pieces for their own pets. Today, Teddy's Treasures has grown to a team of six dedicated craftspeople, all committed to creating premium accessories that combine functionality, comfort, and style.</p>
+        </div>
+        <div class="image-column">
+          <img src="<%= asset_path('about-story.jpg') %>" alt="Teddy, the inspiration behind Teddy's Treasures" onerror="this.src='/api/placeholder/400/400'; this.alt='Founder with her dog'">
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>Our Mission</h2>
+      <div class="section-content centered-content">
+        <p class="mission-statement">"To create premium pet accessories that celebrate the special bond between pets and their owners through thoughtful design, exceptional quality, and sustainable practices."</p>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>Our Approach</h2>
+      <div class="section-content">
+        <div class="image-column">
+          <img src="<%= asset_path('about-approach.jpg') %>" alt="Handcrafting process of our accessories" onerror="this.src='/api/placeholder/400/400'; this.alt='Crafting process'">
+        </div>
+        <div class="text-column">
+          <h3>Quality Materials</h3>
+          <p>We source only the highest quality materials for our products, from premium fabrics to durable hardware. All materials are carefully selected for comfort, durability, and style.</p>
+          
+          <h3>Handcrafted Excellence</h3>
+          <p>Each Teddy's Treasures product is handcrafted in our Winnipeg studio. Our small team of skilled artisans ensures that every stitch is perfect and every detail is attended to with care.</p>
+          
+          <h3>Thoughtful Design</h3>
+          <p>We believe that pet accessories should be as beautiful as they are functional. Our designs consider both the comfort of the pet and the aesthetic preferences of the owner.</p>
+          
+          <h3>Sustainable Practices</h3>
+          <p>We're committed to minimizing our environmental footprint by using eco-friendly materials whenever possible, reducing waste in our production process, and using recyclable packaging.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>Our Team</h2>
+      <div class="section-content team-content">
+        <div class="team-member">
+          <div class="team-photo">
+            <img src="<%= asset_path('team-polina.jpg') %>" alt="Polina Maximenko - Founder & Designer" onerror="this.src='/api/placeholder/250/250'; this.alt='Founder & Designer'">
+          </div>
+          <h3>Polina Maximenko</h3>
+          <p class="team-role">Founder & Designer</p>
+          <p>A textile designer with over 10 years of experience, Polina brings her creative vision and attention to detail to every Teddy's Treasures design.</p>
+        </div>
+        
+        <div class="team-member">
+          <div class="team-photo">
+            <img src="<%= asset_path('team-artisan.jpg') %>" alt="Our Artisan Team" onerror="this.src='/api/placeholder/250/250'; this.alt='Artisan Team'">
+          </div>
+          <h3>Our Artisans</h3>
+          <p class="team-role">Crafting Excellence</p>
+          <p>Our team of skilled artisans bring each design to life with meticulous attention to detail and a passion for quality craftsmanship.</p>
+        </div>
+        
+        <div class="team-member">
+          <div class="team-photo">
+            <img src="<%= asset_path('team-teddy.jpg') %>" alt="Teddy - Chief Inspiration Officer" onerror="this.src='/api/placeholder/250/250'; this.alt='Chief Inspiration Officer'">
+          </div>
+          <h3>Teddy</h3>
+          <p class="team-role">Chief Inspiration Officer</p>
+          <p>The furry face behind our brand, Teddy tests every product for comfort, durability, and style appeal.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section cta-section">
+      <div class="section-content centered-content">
+        <h2>Experience the Teddy's Treasures Difference</h2>
+        <p>We invite you to explore our collection of premium pet accessories and discover the perfect pieces to complement your pet's personality and your lifestyle.</p>
+        <%= link_to 'Shop Now', products_path, class: 'btn-primary' %>
+      </div>
+    </section>
+  </div>
+</div>

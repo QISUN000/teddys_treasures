@@ -1,64 +1,51 @@
 /* 
- * Teddy's Treasures - Main Stylesheet
- * A premium pet accessories e-commerce store
+ * Teddy's Treasures - Simplified CSS
  */
 
-// -----------------------------------------------------------------------------
-// 1. Variables & Base Settings
-// -----------------------------------------------------------------------------
-$primary-color: #1e2940;
-$secondary-color: #f5f2ed;
-$accent-color: #8d6a4a;
-$text-color: #1e2940;
-$light-text: #f5f2ed;
-$border-color: #e6e1d8;
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
 
-$font-heading: 'Cormorant Garamond', serif;
-$font-body: 'Montserrat', sans-serif;
-
-// Status colors
-$status-pending: #f0ad4e;
-$status-paid: #5cb85c;
-$status-shipped: #0275d8;
-$status-delivered: #5cb85c;
-$status-cancelled: #d9534f;
-
-// Breakpoints
-$breakpoint-sm: 576px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 992px;
-$breakpoint-xl: 1200px;
-
-// Base container widths
-$container-sm: 540px;
-$container-md: 720px;
-$container-lg: 960px;
-$container-xl: 1400px;
-
-// -----------------------------------------------------------------------------
-// 2. Reset & Base Elements
-// -----------------------------------------------------------------------------
+/* Base reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Variables (using CSS custom properties) */
+:root {
+  --primary-color: #1e2940;
+  --secondary-color: #f5f2ed;
+  --accent-color: #8d6a4a;
+  --text-color: #1e2940;
+  --light-text: #f5f2ed;
+  --border-color: #e6e1d8;
+  
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Montserrat', sans-serif;
+}
+
+/* Base elements */
 body {
-  font-family: $font-body;
-  color: $text-color;
-  background-color: $secondary-color;
+  font-family: var(--font-body);
+  color: var(--text-color);
+  background-color: var(--secondary-color);
   line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  margin-bottom: 1rem;
 }
 
 a {
   text-decoration: none;
-  color: $text-color;
+  color: var(--text-color);
   transition: color 0.2s ease;
-  
-  &:hover {
-    color: $accent-color;
-  }
+}
+
+a:hover {
+  color: var(--accent-color);
 }
 
 ul {
@@ -70,1294 +57,178 @@ img {
   height: auto;
 }
 
-// -----------------------------------------------------------------------------
-// 3. Common Components
-// -----------------------------------------------------------------------------
+/* Common components */
 .btn-primary {
   display: inline-block;
   padding: 12px 24px;
-  background-color: $primary-color;
-  color: $light-text;
+  background-color: var(--primary-color);
+  color: var(--light-text);
   border: none;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  
-  &:hover {
-    background-color: darken($primary-color, 10%);
-  }
 }
 
-.btn-secondary {
-  padding: 10px 20px;
-  background-color: #f5f5f5;
-  color: $text-color;
-  border: 1px solid $border-color;
+.btn-primary:hover {
+  background-color: #121828;
+}
+
+.btn-outline-light {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: transparent;
+  color: var(--light-text);
+  border: 1px solid var(--light-text);
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background-color: darken(#f5f5f5, 5%);
-  }
+  transition: all 0.2s ease;
 }
 
-.section-title {
-  text-align: center;
-  font-size: 28px;
+.btn-outline-light:hover {
+  background-color: var(--light-text);
+  color: var(--primary-color);
+}
+
+.text-uppercase {
   text-transform: uppercase;
-  margin: 60px 0 40px;
-  font-family: $font-heading;
 }
 
-// Form elements
-.form-group {
-  margin-bottom: 20px;
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-  
-  input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid $border-color;
-    background-color: white;
-    font-size: 16px;
-    font-family: $font-body;
-  }
-}
-
-.form-actions {
-  margin-top: 30px;
+.text-center {
   text-align: center;
 }
 
-// Notifications
-.flash-container {
-  max-width: $container-xl;
-  margin: 0 auto;
-  padding: 10px 40px;
-  
-  .notice {
-    padding: 10px 15px;
-    margin-bottom: 20px;
-    background-color: #d4edda;
-    color: #155724;
-    border-radius: 4px;
-  }
-  
-  .alert {
-    padding: 10px 15px;
-    margin-bottom: 20px;
-    background-color: #f8d7da;
-    color: #721c24;
-    border-radius: 4px;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 4. Layout & Structural Elements
-// -----------------------------------------------------------------------------
-
-// Header
+/* Header */
 header {
-  padding: 20px 40px;
-  background-color: $secondary-color;
-  
-  .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: $container-xl;
-    margin: 0 auto;
-    position: relative;
-  }
-  
-  .logo {
-    font-family: $font-heading;
-    font-size: 24px;
-    line-height: 1.2;
-    text-transform: uppercase;
-    
-    span {
-      font-size: 16px;
-      font-style: italic;
-      text-transform: none;
-    }
-  }
-  
-  .main-nav ul {
-    display: flex;
-    gap: 30px;
-    
-    li a {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      position: relative;
-      
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 0;
-        height: 2px;
-        background-color: $accent-color;
-        transition: width 0.3s ease;
-      }
-      
-      &:hover::after {
-        width: 100%;
-      }
-    }
-  }
-  
-  .user-actions ul {
-    display: flex;
-    gap: 20px;
-    
-    li a {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-  }
-  
-  .logo-wrapper {
-    display: flex;
-    align-items: center;
-  }
-  
-  .mobile-menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    z-index: 100;
-    
-    span {
-      display: block;
-      width: 25px;
-      height: 2px;
-      background-color: $text-color;
-      margin: 5px 0;
-      transition: transform 0.3s, opacity 0.3s;
-    }
-    
-    &.active {
-      span:nth-child(1) {
-        transform: translateY(7px) rotate(45deg);
-      }
-      
-      span:nth-child(2) {
-        opacity: 0;
-      }
-      
-      span:nth-child(3) {
-        transform: translateY(-7px) rotate(-45deg);
-      }
-    }
-  }
+  padding: 20px 0;
+  background-color: var(--secondary-color);
 }
 
-// Footer
-footer {
-  background-color: $primary-color;
-  color: $light-text;
-  padding: 60px 40px 20px;
-  
-  a {
-    color: $light-text;
-    
-    &:hover {
-      color: darken($light-text, 15%);
-    }
-  }
-  
-  .footer-container {
-    display: flex;
-    max-width: $container-xl;
-    margin: 0 auto;
-    gap: 60px;
-    margin-bottom: 40px;
-  }
-  
-  .footer-logo {
-    flex: 1;
-    
-    .logo {
-      font-family: $font-heading;
-      font-size: 20px;
-      line-height: 1.2;
-      margin-bottom: 20px;
-      
-      span {
-        font-size: 14px;
-        font-style: italic;
-      }
-    }
-    
-    p {
-      margin-bottom: 10px;
-    }
-    
-    .social-icons {
-      margin-top: 20px;
-      
-      a {
-        margin-right: 15px;
-      }
-    }
-  }
-  
-  .footer-links {
-    flex: 2;
-    display: flex;
-    justify-content: space-between;
-    
-    .column {
-      h3 {
-        font-size: 16px;
-        text-transform: uppercase;
-        margin-bottom: 15px;
-        font-family: $font-body;
-      }
-      
-      ul li {
-        margin-bottom: 10px;
-        font-size: 14px;
-      }
-    }
-  }
-  
-  .copyright {
-    text-align: center;
-    font-size: 12px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
+.logo {
+  font-family: var(--font-heading);
 }
 
-// -----------------------------------------------------------------------------
-// 5. Home Page Components
-// -----------------------------------------------------------------------------
+.main-nav ul, .user-actions ul {
+  display: flex;
+  gap: 20px;
+}
 
-// Hero section
+/* Hero section */
 .hero {
-  height: 600px;
+  position: relative;
   background-size: cover;
   background-position: center;
-  display: flex;
-  align-items: center;
-  padding: 0 40px;
-  
-  .hero-content {
-    max-width: $container-xl;
-    margin: 0 auto;
-    
-    .hero-subtitle {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 15px;
-    }
-    
-    .hero-title {
-      font-size: 42px;
-      line-height: 1.2;
-      text-transform: uppercase;
-      margin-bottom: 30px;
-      font-family: $font-heading;
-    }
-  }
+  color: var(--light-text);
 }
 
-// Categories section
-.categories {
-  padding: 20px 40px 60px;
-  
-  .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 30px;
-    max-width: $container-xl;
-    margin: 0 auto;
-    
-    .category-card {
-      text-align: center;
-      
-      img {
-        width: 100%;
-        height: 300px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
-      
-      &:hover img {
-        transform: scale(1.03);
-      }
-      
-      h3 {
-        margin-top: 15px;
-        font-size: 18px;
-        text-transform: uppercase;
-      }
-    }
-  }
-}
-
-// Tagline section
-.tagline {
-  background-color: $primary-color;
-  padding: 40px 20px;
-  text-align: center;
-  
-  h2 {
-    color: $light-text;
-    font-size: 28px;
-    max-width: 800px;
-    margin: 0 auto;
-    font-family: $font-heading;
-  }
-}
-
-// FAQ section
-.faq-container {
-  max-width: 900px;
-  margin: 0 auto 40px;
-  
-  .faq-item {
-    border-bottom: 1px solid $border-color;
-    
-    .faq-question {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      cursor: pointer;
-      
-      h3 {
-        margin: 0;
-        font-size: 18px;
-      }
-      
-      .toggle {
-        font-size: 24px;
-      }
-    }
-    
-    .faq-answer {
-      padding: 0 0 20px;
-      display: none;
-    }
-    
-    &.active .faq-answer {
-      display: block;
-    }
-  }
-}
-
-// Instagram section
-.instagram {
-  padding: 20px 40px 60px;
-  
-  p {
-    text-align: center;
-    font-size: 16px;
-    margin-bottom: 30px;
-  }
-  
-  .instagram-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    max-width: $container-xl;
-    margin: 0 auto;
-    
-    img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 6. Product Catalog
-// -----------------------------------------------------------------------------
-
-// Products grid
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
-  max-width: $container-xl;
-  margin: 0 auto;
-  
-  .product-card {
-    margin-bottom: 30px;
-    transition: transform 0.3s ease;
-    
-    &:hover {
-      transform: translateY(-5px);
-    }
-    
-    img {
-      width: 100%;
-      height: 350px;
-      object-fit: cover;
-      margin-bottom: 15px;
-    }
-    
-    h3 {
-      font-size: 16px;
-      margin-bottom: 5px;
-    }
-    
-    .price {
-      font-size: 14px;
-    }
-  }
-}
-
-// Search and filters
-.search-container {
-  margin-bottom: 30px;
-  
-  .search-form {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  
-  .search-inputs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    
-    input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid $border-color;
-    }
-    
-    .btn-search {
-      padding: 10px 20px;
-      background-color: $primary-color;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  }
-  
-  .filter-options {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    
-    a {
-      padding: 5px 10px;
-      
-      &.active {
-        font-weight: bold;
-        border-bottom: 2px solid $primary-color;
-      }
-    }
-  }
-}
-
-// Catalog page container
-.catalog-page {
-  padding: 20px 40px 60px;
-  max-width: $container-xl;
-  margin: 0 auto;
-  
-  h1 {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .category-tabs {
-    margin-bottom: 40px;
-    text-align: center;
-    
-    ul {
-      display: inline-flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
-      
-      li {
-        position: relative;
-        padding-bottom: 10px;
-        
-        &.active::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          height: 2px;
-          background-color: $primary-color;
-        }
-      }
-    }
-  }
-  
-  .pagination {
-    text-align: center;
-    margin-top: 40px;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 7. Product Detail Page
-// -----------------------------------------------------------------------------
-.product-detail {
-  padding: 20px 40px 60px;
-  max-width: $container-xl;
-  margin: 0 auto;
-  
-  .breadcrumb {
-    margin-bottom: 40px;
-    font-size: 14px;
-  }
-  
-  .product-content {
-    display: flex;
-    gap: 60px;
-    margin-bottom: 60px;
-    
-    .product-images {
-      flex: 1;
-      
-      .main-image {
-        margin-bottom: 20px;
-        
-        img {
-          width: 100%;
-          height: auto;
-        }
-      }
-      
-      .thumbnails {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        
-        .thumbnail {
-          width: 80px;
-          height: 80px;
-          cursor: pointer;
-          
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          
-          &.active {
-            border: 2px solid $text-color;
-          }
-        }
-      }
-    }
-    
-    .product-info {
-      flex: 1;
-      
-      h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
-        font-family: $font-heading;
-      }
-      
-      .price {
-        font-size: 18px;
-        margin-bottom: 30px;
-      }
-      
-      .product-options {
-        margin-bottom: 30px;
-        
-        .size-options, .color-options {
-          margin-bottom: 20px;
-          
-          p {
-            margin-bottom: 10px;
-            font-weight: 500;
-          }
-        }
-      }
-      
-      .product-actions {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 30px;
-        
-        .quantity {
-          display: flex;
-          align-items: center;
-          border: 1px solid $border-color;
-          
-          button {
-            width: 40px;
-            height: 40px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-          }
-          
-          input {
-            width: 40px;
-            height: 40px;
-            border: none;
-            text-align: center;
-            font-size: 16px;
-          }
-        }
-      }
-      
-      .product-description {
-        margin-bottom: 30px;
-      }
-      
-      .product-details {
-        .detail-section {
-          margin-bottom: 20px;
-          padding-top: 20px;
-          border-top: 1px solid $border-color;
-          
-          h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-          }
-        }
-      }
-    }
-  }
-  
-  .related-products {
-    h2 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 30px;
-      font-family: $font-heading;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 8. Shopping Cart & Checkout
-// -----------------------------------------------------------------------------
-
-// Cart page
-.cart-page {
-  padding: 20px 40px 60px;
-  max-width: 1200px;
-  margin: 0 auto;
-  
-  h1 {
-    text-align: center;
-    margin-bottom: 40px;
-    font-family: $font-heading;
-  }
-  
-  .empty-cart {
-    text-align: center;
-    padding: 60px 0;
-    
-    p {
-      margin-bottom: 20px;
-      font-size: 18px;
-    }
-  }
-  
-  .cart-items {
-    margin-bottom: 40px;
-    
-    .cart-item {
-      display: flex;
-      align-items: center;
-      padding: 20px 0;
-      border-bottom: 1px solid $border-color;
-      
-      .item-image {
-        width: 100px;
-        
-        img {
-          width: 100px;
-          height: 100px;
-          object-fit: cover;
-        }
-      }
-      
-      .item-details {
-        flex: 2;
-        padding: 0 20px;
-        
-        h3 {
-          margin-bottom: 5px;
-        }
-      }
-      
-      .item-quantity {
-        display: flex;
-        align-items: center;
-        border: 1px solid $border-color;
-        
-        button {
-          width: 30px;
-          height: 30px;
-          background: none;
-          border: none;
-          font-size: 14px;
-          cursor: pointer;
-        }
-        
-        input {
-          width: 40px;
-          height: 30px;
-          border: none;
-          text-align: center;
-          font-size: 14px;
-        }
-      }
-      
-      .item-price {
-        width: 120px;
-        text-align: right;
-        font-size: 16px;
-        font-weight: 500;
-      }
-      
-      .item-remove {
-        width: 40px;
-        text-align: right;
-        
-        .btn-remove {
-          font-size: 18px;
-          color: #999;
-          
-          &:hover {
-            color: #555;
-          }
-        }
-      }
-    }
-  }
-  
-  .cart-summary {
-    border-top: 2px solid $text-color;
-    padding-top: 20px;
-    
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      font-size: 18px;
-      font-weight: 500;
-    }
-    
-    .proceed-checkout {
-      text-align: right;
-    }
-  }
-}
-
-// Checkout page
-.checkout-page {
-  padding: 20px 40px 60px;
-  max-width: 1200px;
-  margin: 0 auto;
-  
-  h1 {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  
-  .checkout-columns {
-    display: flex;
-    gap: 40px;
-  }
-  
-  .shipping-column,
-  .order-summary-column {
-    flex: 1;
-  }
-  
-  .section {
-    background-color: white;
-    padding: 30px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    
-    h2 {
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid $border-color;
-    }
-  }
-  
-  .saved-addresses {
-    margin-bottom: 30px;
-  }
-  
-  .address-option {
-    margin-bottom: 15px;
-    padding: 15px;
-    border: 1px solid $border-color;
-    border-radius: 5px;
-    
-    &:hover {
-      background-color: #f9f9f9;
-    }
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
-  .cart-item-summary {
-    display: flex;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid $border-color;
-    
-    .item-image {
-      width: 60px;
-      
-      img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-      }
-    }
-    
-    .item-details {
-      flex: 1;
-      padding-left: 15px;
-      
-      h4 {
-        margin-bottom: 5px;
-      }
-    }
-    
-    .item-price {
-      font-weight: 500;
-    }
-  }
-  
-  .order-totals {
-    margin-top: 20px;
-    
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      
-      &.grand-total {
-        margin-top: 15px;
-        padding-top: 15px;
-        border-top: 2px solid $primary-color;
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
-    
-    .taxes-note {
-      display: block;
-      font-size: 12px;
-      color: #999;
-      font-weight: normal;
-    }
-  }
-  
-  .checkout-actions {
-    margin-top: 30px;
-    
-    .btn-primary {
-      width: 100%;
-      padding: 15px;
-      font-size: 16px;
-    }
-  }
-}
-
-// Modal
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  
-  .modal-content {
-    background-color: $secondary-color;
-    margin: 50px auto;
-    padding: 40px;
-    max-width: 900px;
-    position: relative;
-    
-    .close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 28px;
-      cursor: pointer;
-    }
-    
-    h2 {
-      margin-bottom: 30px;
-      text-align: center;
-      font-family: $font-heading;
-    }
-  }
-}
-
-// Order confirmation
-.order-confirmation {
-  max-width: 900px;
-  margin: 40px auto;
-  text-align: center;
-  
-  .confirmation-icon {
-    margin-bottom: 30px;
-  }
-  
-  h1 {
-    margin-bottom: 10px;
-  }
-  
-  .confirmation-number {
-    font-size: 18px;
-    margin-bottom: 20px;
-  }
-  
-  .confirmation-message {
-    margin-bottom: 30px;
-  }
-}
-
-// Order details
-.order-detail {
-  padding: 20px 40px 60px;
-  max-width: 900px;
-  margin: 0 auto;
-  
-  h1 {
-    margin-bottom: 20px;
-  }
-  
-  .order-status {
-    margin-bottom: 30px;
-    
-    .status-pending { color: $status-pending; }
-    .status-paid { color: $status-paid; }
-    .status-shipped { color: $status-shipped; }
-    .status-delivered { color: $status-delivered; }
-    .status-cancelled { color: $status-cancelled; }
-  }
-  
-  .order-table {
-    width: 100%;
-    margin-bottom: 30px;
-    border-collapse: collapse;
-    
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 1px solid $border-color;
-    }
-    
-    .product-info {
-      display: flex;
-      align-items: center;
-      
-      img {
-        margin-right: 15px;
-      }
-    }
-  }
-  
-  .order-summary {
-    margin-bottom: 30px;
-    
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      
-      &.total {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 2px solid $primary-color;
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
-  }
-  
-  .order-actions {
-    display: flex;
-    gap: 15px;
-  }
-}
-
-// Authentication forms
-.auth-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 30px;
-  background-color: white;
+/* Categories section */
+.card {
+  border: none;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  
-  h2 {
-    margin-bottom: 20px;
-    text-align: center;
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+  height: 250px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+/* FAQ section */
+.accordion-button:not(.collapsed) {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: var(--border-color);
+}
+
+/* Instagram section */
+.instagram-grid img {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.instagram-grid img:hover {
+  transform: scale(1.03);
+}
+
+/* Footer */
+footer {
+  background-color: var(--primary-color);
+  color: var(--light-text);
+  padding: 40px 0 20px;
+}
+
+footer a {
+  color: var(--light-text);
+}
+
+footer a:hover {
+  color: var(--secondary-color);
+  opacity: 0.9;
+}
+
+/* Alert messages */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .container {
+    max-width: 100%;
+    padding: 0 20px;
   }
 }
 
-// -----------------------------------------------------------------------------
-// 9. Animations and Effects
-// -----------------------------------------------------------------------------
-
-// Checkmark animation for order confirmation
-.checkmark {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: block;
-  stroke-width: 2;
-  stroke: $status-paid;
-  stroke-miterlimit: 10;
-  margin: 0 auto 20px;
-  box-shadow: inset 0px 0px 0px $status-paid;
-  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-}
-
-.checkmark-circle {
-  stroke-dasharray: 166;
-  stroke-dashoffset: 166;
-  stroke-width: 2;
-  stroke-miterlimit: 10;
-  stroke: $status-paid;
-  fill: none;
-  animation: stroke .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-
-.checkmark-check {
-  transform-origin: 50% 50%;
-  stroke-dasharray: 48;
-  stroke-dashoffset: 48;
-  animation: stroke .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards;
-}
-
-@keyframes stroke {
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes scale {
-  0%, 100% {
-    transform: none;
-  }
-  50% {
-    transform: scale3d(1.1, 1.1, 1);
-  }
-}
-
-@keyframes fill {
-  100% {
-    box-shadow: inset 0px 0px 0px 30px $status-paid;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 10. Responsive Design
-// -----------------------------------------------------------------------------
-
-// Large devices (desktops, less than 1200px)
-@media (max-width: $breakpoint-xl) {
-  .container, .header-container, .footer-container {
-    max-width: $container-lg;
-  }
-  
+@media (max-width: 768px) {
   .hero {
-    height: 500px;
-  }
-}
-
-// Medium devices (tablets, less than 992px)
-@media (max-width: $breakpoint-lg) {
-  .container, .header-container, .footer-container {
-    max-width: $container-md;
-  }
-  
-  header {
-    padding: 15px 20px;
-  }
-  
-  .product-content {
-    flex-direction: column;
-    gap: 30px;
-  }
-  
-  .footer-container {
-    flex-direction: column;
-    gap: 40px;
-  }
-  
-  .footer-links {
-    flex-wrap: wrap;
-  }
-  
-  .checkout-columns {
-    flex-direction: column;
-  }
-}
-
-// Small devices (landscape phones, less than 768px)
-@media (max-width: $breakpoint-md) {
-  .container, .header-container, .footer-container {
-    max-width: $container-sm;
-  }
-  
-  header .header-container {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-  
-  .mobile-menu-toggle {
-    display: block;
-  }
-  
-  .logo-wrapper {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .nav-container {
-    display: none;
-    
-    &.active {
-      display: block;
-      width: 100%;
-    }
+    height: 450px !important;
   }
   
   .main-nav ul, .user-actions ul {
     flex-direction: column;
     gap: 10px;
-    padding: 15px 0;
-    justify-content: center;
   }
   
-  .hero {
-    height: 400px;
-    text-align: center;
-  }
-  
-  .hero-title {
-    font-size: 32px;
-  }
-  
-  .products-grid, .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .cart-item {
-    flex-wrap: wrap;
-  }
-  
-  .item-quantity, .item-price, .item-remove {
-    margin-top: 15px;
-  }
-  
-  .search-inputs {
-    flex-direction: column;
+  .display-4 {
+    font-size: 2rem;
   }
 }
 
-// Extra small devices (portrait phones, less than 576px)
-@media (max-width: $breakpoint-sm) {
-  .container, .header-container, .footer-container {
-    width: 100%;
-    padding: 0 15px;
+@media (max-width: 576px) {
+  .hero {
+    height: 350px !important;
   }
   
-  .products-grid, .categories-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .product-detail, .cart-page, .checkout-page, .order-detail {
-    padding: 15px;
-  }
-  
-  .product-detail .product-actions {
-    flex-direction: column;
-  }
-  
-  .filter-options {
-    flex-wrap: wrap;
-  }
-  
-  .order-table th, .order-table td {
-    padding: 10px 5px;
-    font-size: 14px;
-  }
-  
-  .modal-content {
-    margin: 15px;
-    padding: 15px;
-  }
-  
-  // Responsive table for small screens
-  .responsive-table {
-    display: block;
-    
-    thead {
-      display: none;
-    }
-    
-    tbody {
-      display: block;
-    }
-    
-    tr {
-      display: block;
-      margin-bottom: 20px;
-      border: 1px solid $border-color;
-    }
-    
-    td {
-      display: flex;
-      justify-content: space-between;
-      text-align: right;
-      padding: 10px;
-      border-bottom: 1px solid $border-color;
-      
-      &:before {
-        content: attr(data-label);
-        font-weight: bold;
-        text-align: left;
-        flex: 1;
-      }
-    }
+  .card-img-top {
+    height: 200px;
   }
 }

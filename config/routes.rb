@@ -1,19 +1,17 @@
 Rails.application.routes.draw do
+  # Remove these duplicate lines
+  # devise_for :admin_users, ActiveAdmin::Devise.config  <- DUPLICATE
+  # ActiveAdmin.routes(self)  <- DUPLICATE
+
+  # Keep only one set of ActiveAdmin routes
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
+  
   devise_for :users
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  
+  # Your other routes remain the same
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
   get '/about', to: 'pages#about'
   get '/contact', to: 'pages#contact'
   get '/faq', to: 'pages#faq'
@@ -24,6 +22,7 @@ Rails.application.routes.draw do
       get 'search', to: 'products#search', as: 'search'
     end
   end
+  post 'checkout', to: 'orders#create', as: 'checkout'
   
   resource :cart, only: [:show, :update, :destroy] do
     member do

@@ -1,24 +1,28 @@
-<div class="product-detail">
-  <div class="breadcrumb">
-    <%= link_to 'Catalog', products_path %> / 
-    <% if @product.categories.any? %>
-      <%= link_to @product.categories.first.name, category_products_path(@product.categories.first) %> / 
-    <% end %>
-    <%= @product.name %>
-  </div>
+<div class="container py-5">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><%= link_to 'Catalog', products_path %></li>
+      <% if @product.categories.any? %>
+        <li class="breadcrumb-item"><%= link_to @product.categories.first.name, category_products_path(@product.categories.first) %></li>
+      <% end %>
+      <li class="breadcrumb-item active" aria-current="page"><%= @product.name %></li>
+    </ol>
+  </nav>
   
-  <div class="product-content">
-    <div class="product-images">
+  <div class="row g-4">
+    <div class="col-md-6">
       <% if @product.images.attached? %>
-        <div class="main-image">
-          <%= image_tag @product.images.first, alt: @product.name, id: 'main-image' %>
+        <div class="mb-3">
+          <%= image_tag @product.images.first, alt: @product.name, id: 'main-image', class: 'img-fluid rounded shadow-sm', style: 'width: 100%; object-fit: cover;' %>
         </div>
         
         <% if @product.images.count > 1 %>
-          <div class="thumbnails">
+          <div class="row g-2">
             <% @product.images.each_with_index do |image, index| %>
-              <div class="thumbnail" data-index="<%= index %>">
-                <%= image_tag image, alt: "#{@product.name} - thumbnail #{index + 1}" %>
+              <div class="col-3">
+                <div class="thumbnail p-1 border rounded <%= index == 0 ? 'border-primary' : '' %>" data-index="<%= index %>">
+                  <%= image_tag image, alt: "#{@product.name} - thumbnail #{index + 1}", class: 'img-fluid cursor-pointer' %>
+                </div>
               </div>
             <% end %>
           </div>
@@ -26,87 +30,100 @@
       <% end %>
     </div>
     
-    <div class="product-info">
-      <h1><%= @product.name %></h1>
-      <p class="price"><%= number_to_currency(@product.price/100.0) %></p>
+    <div class="col-md-6">
+      <h1 class="mb-2"><%= @product.name %></h1>
+      <p class="fs-4 fw-bold text-primary mb-4"><%= number_to_currency(@product.price/100.0) %></p>
       
-      <%= form_with url: add_item_cart_path, method: :post do |f| %>
+      <%= form_with url: add_item_cart_path, method: :post, class: 'mb-4' do |f| %>
         <%= f.hidden_field :product_id, value: @product.id %>
         
-        <div class="product-options">
-          <div class="size-options">
-            <p>Size:</p>
-            <div class="size-selector">
-              <label>
-                <input type="radio" name="size" value="XS" checked>
-                <span>XS (neck 20-26 cm, width 1.5 cm)</span>
-              </label>
-              <label>
-                <input type="radio" name="size" value="S">
-                <span>S (neck 27-32 cm, width 1.5 cm)</span>
-              </label>
-              <label>
-                <input type="radio" name="size" value="M">
-                <span>M (neck 32-38 cm, width 2 cm)</span>
-              </label>
+        <div class="mb-4">
+          <div class="mb-3">
+            <p class="fw-bold mb-2">Size:</p>
+            <div class="d-flex flex-column gap-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="size" id="sizeXS" value="XS" checked>
+                <label class="form-check-label" for="sizeXS">
+                  XS (neck 20-26 cm, width 1.5 cm)
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="size" id="sizeS" value="S">
+                <label class="form-check-label" for="sizeS">
+                  S (neck 27-32 cm, width 1.5 cm)
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="size" id="sizeM" value="M">
+                <label class="form-check-label" for="sizeM">
+                  M (neck 32-38 cm, width 2 cm)
+                </label>
+              </div>
             </div>
           </div>
           
-          <div class="color-options">
-            <p>Color:</p>
-            <div class="color-selector">
-              <label>
-                <input type="radio" name="color" value="brown" checked>
-                <span class="color brown"></span>
-              </label>
+          <div class="mb-3">
+            <p class="fw-bold mb-2">Color:</p>
+            <div class="d-flex gap-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="color" id="colorBrown" value="brown" checked>
+                <label class="form-check-label" for="colorBrown">
+                  <span class="d-inline-block rounded-circle bg-brown" style="width: 25px; height: 25px; background-color: brown;"></span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
         
-        <div class="product-actions">
-          <div class="quantity">
-            <button type="button" class="minus">-</button>
-            <%= f.number_field :quantity, value: 1, min: 1 %>
-            <button type="button" class="plus">+</button>
+        <div class="d-flex align-items-center mb-4">
+          <div class="input-group me-3" style="width: 130px;">
+            <button type="button" class="btn btn-outline-secondary minus">-</button>
+            <%= f.number_field :quantity, value: 1, min: 1, class: 'form-control text-center' %>
+            <button type="button" class="btn btn-outline-secondary plus">+</button>
           </div>
           
-          <%= f.submit 'ADD TO CART', class: 'btn-primary' %>
-          <button type="button" class="btn-favorite">♡</button>
+          <%= f.submit 'ADD TO CART', class: 'btn btn-primary me-2' %>
+        
         </div>
       <% end %>
       
-      <div class="product-description">
+      <div class="mb-4">
+        <h4 class="border-bottom pb-2 mb-3">Description</h4>
         <p><%= @product.description %></p>
       </div>
       
-      <div class="product-details">
-        <div class="detail-section">
-          <h3>MATERIALS</h3>
-          <p>Outer layer: 100% polyester<br>Inner layer: 100% plush</p>
+      <div>
+        <div class="mb-3">
+          <h5 class="fw-bold">MATERIALS</h5>
+          <p class="mb-0">Outer layer: 100% polyester<br>Inner layer: 100% plush</p>
         </div>
         
-        <div class="detail-section">
-          <h3>HOW TO MEASURE YOUR DOG</h3>
-          <p>To determine the right collar size, measure your dog's neck circumference and add 1-2 cm for comfort.</p>
+        <div>
+          <h5 class="fw-bold">HOW TO MEASURE YOUR DOG</h5>
+          <p class="mb-0">To determine the right collar size, measure your dog's neck circumference and add 1-2 cm for comfort.</p>
         </div>
       </div>
     </div>
   </div>
   
   <% if @related_products.any? %>
-    <div class="related-products">
-      <h2>YOU MAY ALSO LIKE</h2>
+    <div class="mt-5 pt-4 border-top">
+      <h2 class="text-center mb-4">YOU MAY ALSO LIKE</h2>
       
-      <div class="products-grid">
+      <div class="row row-cols-2 row-cols-md-4 g-3">
         <% @related_products.each do |product| %>
-          <div class="product-card">
-            <%= link_to product_path(product) do %>
-              <% if product.images.attached? %>
-                <%= image_tag product.images.first, alt: product.name %>
+          <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+              <%= link_to product_path(product), class: 'text-decoration-none' do %>
+                <% if product.images.attached? %>
+                  <%= image_tag product.images.first, alt: product.name, class: 'card-img-top', style: 'height: 200px; object-fit: cover;' %>
+                <% end %>
+                <div class="card-body text-center">
+                  <h5 class="card-title text-dark"><%= product.name %></h5>
+                  <p class="card-text fw-bold text-primary"><%= number_to_currency(product.price/100.0) %></p>
+                </div>
               <% end %>
-              <h3><%= product.name %></h3>
-              <p class="price"><%= number_to_currency(product.price/100.0) %></p>
-            <% end %>
+            </div>
           </div>
         <% end %>
       </div>
@@ -115,7 +132,7 @@
 </div>
 
 <script>
-  // Image gallery functionality
+
   document.addEventListener('DOMContentLoaded', function() {
     const thumbnails = document.querySelectorAll('.thumbnail');
     const mainImage = document.getElementById('main-image');
@@ -125,14 +142,13 @@
         thumb.addEventListener('click', function() {
           const imageUrl = thumb.querySelector('img').src;
           mainImage.src = imageUrl;
-          thumbnails.forEach(t => t.classList.remove('active'));
-          thumb.classList.add('active');
+          thumbnails.forEach(t => t.classList.remove('border-primary'));
+          thumb.classList.add('border-primary');
         });
       });
-      thumbnails[0].classList.add('active');
     }
     
-    // Quantity controls
+
     const minusBtn = document.querySelector('.minus');
     const plusBtn = document.querySelector('.plus');
     const quantityInput = document.querySelector('input[name="quantity"]');

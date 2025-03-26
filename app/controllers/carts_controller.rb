@@ -1,38 +1,63 @@
 class CartsController < ApplicationController
   def show
-    @cart_items = current_cart
+    # Eager load products with images to avoid N+1 queries
+    @cart_items = {}
+    products = Product.where(id: current_cart.keys)
+    
+    products.each do |product|
+      @cart_items[product] = current_cart[product.id.to_s]
+    end
+    
+    # Remove any products that couldn't be found
+    current_cart.keys.each do |product_id|
+      unless products.exists?(id: product_id)
+        current_cart.delete(product_id)
+        session[:cart] = current_cart
+      end
+    end
   end
 
   def add_item
-    product_id = params[:product_id].to_i
-    quantity = params[:quantity].to_i
+    product = Product.find_by(id: params[:product_id])
+    if product
+      current_cart[product.id.to_s] = current_cart[product.id.to_s].to_i + params[:quantity].to_i
+      session[:cart] = current_cart
+      notice = 'Item added to cart.'
+    else
+      notice = 'Product not found.'
+    end
     
-    current_cart[product_id] = current_cart[product_id].to_i + quantity
-    session[:cart] = current_cart
-    
-    redirect_back fallback_location: products_path, notice: 'Item added to cart.'
+    redirect_back fallback_location: products_path, notice: notice
   end
 
   def remove_item
-    product_id = params[:product_id].to_i
-    current_cart.delete(product_id.to_s)
-    session[:cart] = current_cart
+    if current_cart.delete(params[:product_id].to_s)
+      session[:cart] = current_cart
+      notice = 'Item removed from cart.'
+    else
+      notice = 'Item not found in cart.'
+    end
     
-    redirect_back fallback_location: cart_path, notice: 'Item removed from cart.'
+    redirect_back fallback_location: cart_path, notice: notice
   end
 
   def update_quantity
-    product_id = params[:product_id].to_i
+    product_id = params[:product_id].to_s
     quantity = params[:quantity].to_i
     
-    if quantity > 0
-      current_cart[product_id.to_s] = quantity
+    if current_cart.key?(product_id)
+      if quantity > 0
+        current_cart[product_id] = quantity
+      else
+        current_cart.delete(product_id)
+      end
+      session[:cart] = current_cart
+      notice = 'Cart updated.'
     else
-      current_cart.delete(product_id.to_s)
+      notice = 'Product not found in cart.'
     end
     
-    session[:cart] = current_cart
-    redirect_back fallback_location: cart_path, notice: 'Cart updated.'
+    redirect_back fallback_location: cart_path, notice: notice
   end
 
   def destroy
@@ -44,5 +69,16 @@ class CartsController < ApplicationController
 
   def current_cart
     session[:cart] ||= {}
+  end
+  
+  # Helper method for views
+  helper_method :cart_count, :cart_total
+  
+  def cart_count
+    current_cart.values.sum
+  end
+  
+  def cart_total
+    @cart_items.sum { |product, quantity| product.price * quantity }
   end
 end
