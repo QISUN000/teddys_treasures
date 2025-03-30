@@ -1,10 +1,11 @@
 # app/admin/pages.rb
 ActiveAdmin.register Page do
-  # Only permit specific parameters
-  permit_params :title, :content, :slug
-  
-  # Make the slug read-only after creation to prevent URL changes
+  # Use slug as the identifying parameter instead of ID
   controller do
+    def find_resource
+      Page.find_by(slug: params[:id])
+    end
+    
     def update
       if resource.slug.in?(['about', 'contact']) && params[:page][:slug] != resource.slug
         flash[:error] = "Cannot change slug for system pages"
@@ -13,7 +14,10 @@ ActiveAdmin.register Page do
       super
     end
   end
-
+  
+  # Rest of your configuration remains the same
+  permit_params :title, :content, :slug
+  
   index do
     selectable_column
     id_column
@@ -22,6 +26,11 @@ ActiveAdmin.register Page do
     column :updated_at
     actions
   end
+
+  filter :title
+  filter :content
+  filter :created_at
+  filter :updated_at
 
   form do |f|
     f.inputs 'Page Details' do

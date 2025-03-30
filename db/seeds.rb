@@ -1,47 +1,18 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-# db/seeds.rb
+require 'faker'
+require 'net/http'
+require 'uri'
+require 'json'
+require 'down'
 
-OrderItem.destroy_all
-Order.destroy_all
-ProductCategory.destroy_all
-Product.destroy_all
-Category.destroy_all
-Address.destroy_all
-Page.destroy_all
-Province.destroy_all
-User.destroy_all
-AdminUser.destroy_all
-
-
-AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password')
-
-puts "Creating provinces..."
-provinces = [
-  { name: 'Alberta', code: 'AB', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
-  { name: 'British Columbia', code: 'BC', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
-  { name: 'Manitoba', code: 'MB', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
-  { name: 'New Brunswick', code: 'NB', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Newfoundland and Labrador', code: 'NL', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Northwest Territories', code: 'NT', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
-  { name: 'Nova Scotia', code: 'NS', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Nunavut', code: 'NU', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
-  { name: 'Ontario', code: 'ON', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 13.0 },
-  { name: 'Prince Edward Island', code: 'PE', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Quebec', code: 'QC', gst_rate: 5.0, pst_rate: 9.975, hst_rate: 0.0 },
-  { name: 'Saskatchewan', code: 'SK', gst_rate: 5.0, pst_rate: 6.0, hst_rate: 0.0 },
-  { name: 'Yukon', code: 'YT', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 }
-]
-
-provinces.each do |province|
-  Province.create!(province)
+# Clear existing products and categories if needed
+# Only use this in development environment
+if Rails.env.development?
+  puts "Clearing existing products and categories..."
+  OrderItem.destroy_all
+  Order.destroy_all
+  ProductCategory.destroy_all
+  Product.destroy_all
+  Category.destroy_all
 end
 
 # Create categories
@@ -53,95 +24,165 @@ categories = [
   { name: 'Beds', description: 'Cozy and comfortable dog beds' }
 ]
 
+category_records = {}
 categories.each do |category|
-  Category.create!(category)
+  category_records[category[:name]] = Category.find_or_create_by!(name: category[:name]) do |c|
+    c.description = category[:description]
+  end
 end
 
-# Create static pages
-puts "Creating static pages..."
-pages = [
-  { 
-    title: 'About Us', 
-    slug: 'about', 
-    content: "# About Teddy's Treasures\n\nFounded in 2020, Teddy's Treasures is a boutique pet accessories brand dedicated to creating stylish, high-quality products for your furry friends. Our mission is to combine functionality with fashion, ensuring your pets look their best while enjoying comfort and durability.\n\n## Our Story\n\nThe brand was inspired by our founder's dog, Teddy, a spirited Bichon Frise with a taste for the finer things in life. When she couldn't find accessories that matched both Teddy's personality and her own aesthetic standards, she decided to create her own.\n\nStarting with a small collection of handcrafted collars, Teddy's Treasures has grown to offer a comprehensive range of pet accessories, each designed with love and attention to detail.\n\n## Our Products\n\nAll Teddy's Treasures products are crafted using premium materials, ensuring they're not only beautiful but built to last. We work with skilled artisans who share our passion for quality and design, resulting in products that both pets and their owners love.\n\n## Our Commitment\n\nWe're committed to creating products that enhance the bond between pets and their owners. We believe that every pet deserves to feel special, and every owner deserves to feel proud of their furry companion."
-  },
-  { 
-    title: 'Contact Us', 
-    slug: 'contact', 
-    content: "# Contact Teddy's Treasures\n\n## Customer Service\n\nPhone: (204) 555-1234\nEmail: info@teddystreasures.com\n\n## Hours of Operation\n\nMonday to Friday: 9am - 5pm CST\nSaturday: 10am - 4pm CST\nSunday: Closed\n\n## Location\n\nTeddy's Treasures\n123 Main Street\nWinnipeg, Manitoba R3C 1A3\nCanada\n\n## Send Us a Message\n\nHave questions or feedback? We'd love to hear from you! Fill out the contact form below and one of our team members will get back to you as soon as possible."
-  },
-  { 
-    title: 'FAQ', 
-    slug: 'faq', 
-    content: "# Frequently Asked Questions\n\n## Products\n\n### How do I determine the right size for my pet?\n\nMeasuring your pet correctly is essential for a perfect fit. Please refer to our sizing guides for each product category. Generally, you'll need to measure your dog's neck circumference for collars, chest circumference for harnesses, and weight for beds.\n\n### Where are Teddy's Treasures products made?\n\nAll our products are designed in Winnipeg, Manitoba and manufactured in our partner workshops in Canada and Europe using high-quality materials.\n\n### How do I care for my Teddy's Treasures products?\n\nMost of our products can be hand washed with mild soap and air dried. For specific care instructions, please refer to the product page or the care label attached to your item.\n\n## Orders & Shipping\n\n### How long will it take to receive my order?\n\nOrders typically ship within 1-2 business days. Delivery times vary depending on your location, typically 2-5 business days within Canada.\n\n### Do you offer international shipping?\n\nYes, we ship to most countries worldwide. International shipping rates and delivery times will be calculated at checkout.\n\n### What is your return policy?\n\nWe offer a 30-day return policy for unused items in original packaging. Custom orders are non-returnable. Please contact our customer service team to initiate a return."
-  }
+# Product attributes for variety
+puts "Preparing product attributes..."
+materials = ['Leather', 'Nylon', 'Cotton', 'Hemp', 'Recycled', 'Vegan', 'Plush', 'Microfiber', 'Velvet', 'Wool']
+patterns = ['Solid', 'Striped', 'Polka Dot', 'Checkered', 'Floral', 'Geometric', 'Paw Print', 'Bone', 'Hearts', 'Stars']
+colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink', 'Black', 'White', 'Brown', 'Orange', 'Teal', 'Navy', 'Burgundy', 'Gray']
+sizes = ['Small', 'Medium', 'Large', 'X-Small', 'X-Large']
+collections = ['Classic', 'Premium', 'Deluxe', 'Adventure', 'Cozy', 'Urban', 'Seasonal', 'Outdoor', 'Designer', 'Basic']
+
+# Function to create a product with Faker data
+def create_product(name, description, category_name, index)
+  base_price = case category_name
+               when 'Collars' then rand(1990..4990)
+               when 'Harnesses' then rand(2990..5990)
+               when 'Leashes' then rand(1590..3990)
+               when 'Beds' then rand(4990..12990)
+               end
+  
+  on_sale = [true, false].sample
+  sale_price = on_sale ? (base_price * rand(0.7..0.9)).round(-1) : nil
+  
+  category_code = category_name[0..2].upcase
+  sku = "#{category_code}-#{name[0..2].upcase}-#{index.to_s.rjust(3, '0')}"
+  
+  Product.create!(
+    name: name,
+    description: description,
+    price: base_price,
+    stock_quantity: rand(5..50),
+    on_sale: on_sale,
+    sale_price: sale_price,
+    sku: sku
+  )
+end
+
+# Function to fetch dog images from the Dog.ceo API
+def fetch_dog_images(limit = 100)
+  # Dog.ceo API provides random dog images
+  url = URI("https://dog.ceo/api/breeds/image/random/#{limit}")
+  
+  response = Net::HTTP.get_response(url)
+  return [] unless response.code == "200"
+  
+  data = JSON.parse(response.body)
+  return [] unless data["status"] == "success"
+  
+  data["message"] # Array of image URLs
+rescue => e
+  puts "Error fetching from Dog.ceo API: #{e.message}"
+  return []
+end
+
+# Fetch all dog images at once
+puts "Fetching dog images from API..."
+all_dog_images = fetch_dog_images(120) # Fetch more than needed in case some fail
+
+# Product name templates by category
+collar_templates = [
+  "#{materials.sample} #{patterns.sample} Collar",
+  "#{colors.sample} #{materials.sample} Collar",
+  "#{collections.sample} #{materials.sample} Collar",
+  "#{sizes.sample} Pet #{patterns.sample} Collar",
+  "#{colors.sample} #{patterns.sample} #{collections.sample} Collar"
 ]
 
-pages.each do |page|
-  Page.create!(page)
+harness_templates = [
+  "#{materials.sample} #{patterns.sample} Harness",
+  "#{colors.sample} #{materials.sample} Harness",
+  "#{collections.sample} #{sizes.sample} Harness",
+  "#{sizes.sample} Pet #{patterns.sample} Harness",
+  "#{colors.sample} #{patterns.sample} Support Harness"
+]
+
+leash_templates = [
+  "#{materials.sample} #{patterns.sample} Leash",
+  "#{colors.sample} #{materials.sample} Leash",
+  "#{collections.sample} Training Leash",
+  "#{sizes.sample} Pet #{patterns.sample} Leash",
+  "#{colors.sample} Retractable #{materials.sample} Leash"
+]
+
+bed_templates = [
+  "#{materials.sample} #{patterns.sample} Bed",
+  "#{colors.sample} #{materials.sample} Pet Bed",
+  "#{collections.sample} #{sizes.sample} Comfort Bed",
+  "#{sizes.sample} Pet #{patterns.sample} Lounger",
+  "#{colors.sample} #{patterns.sample} Orthopedic Bed"
+]
+
+total_products = 0
+current_image_index = 0
+
+# Create products for each category
+categories.each do |category|
+  puts "Creating #{category[:name]}..."
+  
+  templates = case category[:name]
+              when 'Collars' then collar_templates
+              when 'Harnesses' then harness_templates
+              when 'Leashes' then leash_templates
+              when 'Beds' then bed_templates
+              end
+  
+  25.times do |i|
+    name = "#{templates.sample}"
+    description = "#{Faker::Marketing.buzzwords.capitalize} #{materials.sample.downcase} #{category[:name].downcase.singularize} with #{patterns.sample.downcase} pattern. #{Faker::Lorem.paragraph(sentence_count: 3)}"
+    
+    product = create_product(name, description, category[:name], i + 1)
+    product.categories << category_records[category[:name]]
+    
+    # Attach image from API if available
+    if current_image_index < all_dog_images.length
+      begin
+        image_url = all_dog_images[current_image_index]
+        tempfile = Down.download(image_url)
+        product.images.attach(io: tempfile, filename: "product_#{product.id}.jpg")
+        current_image_index += 1
+      rescue => e
+        puts "Error downloading image: #{e.message}"
+      end
+    end
+    
+    total_products += 1
+    puts "Created product: #{product.name}" if (i + 1) % 5 == 0
+  end
 end
 
-# Create initial products
-puts "Creating initial products..."
-collar = Product.create!(
-  name: 'Teddy Collar',
-  description: 'A stylish collar with soft fleece lining - ideal combination of elegance for your pet. Plush trim on both sides and high-quality hardware guarantees reliability and longevity. Suitable for everyday use and cold weather.',
-  price: 3390,
-  stock_quantity: 20,
-  on_sale: false,
-  sale_price: nil,
-  sku: 'COL-TED-001'
-)
-
-harness = Product.create!(
-  name: 'Teddy Harness',
-  description: 'Comfortable harness with soft fleece lining and adjustable straps for a perfect fit. Designed for both comfort and style with durable hardware.',
-  price: 4390,
-  stock_quantity: 15,
-  on_sale: false,
-  sale_price: nil,
-  sku: 'HAR-TED-001'
-)
-
-leash = Product.create!(
-  name: 'Basic Leash',
-  description: 'Classic leather leash with comfortable grip and strong hardware. Perfect companion for daily walks.',
-  price: 3590,
-  stock_quantity: 25,
-  on_sale: false,
-  sale_price: nil,
-  sku: 'LSH-BAS-001'
-)
-
-bed = Product.create!(
-  name: 'Cloudy Bed',
-  description: 'Soft, plush bed with raised edges for support and extra comfort. Machine washable with removable cover.',
-  price: 8990,
-  stock_quantity: 10,
-  on_sale: true,
-  sale_price: 7990,
-  sku: 'BED-CLD-001'
-)
-
-Page.find_or_create_by(slug: 'about') do |page|
-  page.title = 'About Teddy\'s Treasures'
-  page.content = "Teddy's Treasures was founded in 2020 in Winnipeg, Manitoba. We create premium, handcrafted accessories for pets that combine comfort, style, and durability.\n\nOur products are designed with both pets and their owners in mind, ensuring that your furry friend looks as stylish as you do."
+# Create some multi-category products
+puts "Creating multi-category products..."
+5.times do |i|
+  # Collar and leash sets
+  materials_sample = materials.sample
+  colors_sample = colors.sample
+  name = "#{colors_sample} #{materials_sample} Collar & Leash Set"
+  description = "Matching collar and leash set made with premium #{materials_sample.downcase} material. #{Faker::Lorem.paragraph(sentence_count: 3)}"
+  
+  product = create_product(name, description, 'Collars', 100 + i)
+  product.categories << category_records['Collars']
+  product.categories << category_records['Leashes']
+  
+  # Attach image from API if available
+  if current_image_index < all_dog_images.length
+    begin
+      image_url = all_dog_images[current_image_index]
+      tempfile = Down.download(image_url)
+      product.images.attach(io: tempfile, filename: "product_#{product.id}.jpg")
+      current_image_index += 1
+    rescue => e
+      puts "Error downloading image: #{e.message}"
+    end
+  end
+  
+  total_products += 1
 end
 
-Page.find_or_create_by(slug: 'contact') do |page|
-  page.title = 'Contact Us'
-  page.content = "Email: info@teddystreasures.com\nPhone: (204) 555-5555\n\nOur boutique is located at:\n123 Main Street\nWinnipeg, MB R3C 1A3\n\nHours:\nMonday to Friday: 9am - 6pm\nSaturday: 10am - 5pm\nSunday: Closed"
-end
-
-Page.find_or_create_by(slug: 'faq') do |page|
-  page.title = 'Frequently Asked Questions'
-  page.content = "### How do I determine the right size for my pet?\nMeasure your pet's neck or chest circumference depending on the product type. Each size has a specified measurement range.\n\n### Where are Teddy's Treasures products made?\nAll our products are designed and manufactured in Winnipeg, Manitoba.\n\n### How do I care for your products?\nMost of our products can be machine washed at 30°C on a delicate cycle. Air drying is recommended for best results."
-end
-
-# Assign categories
-collar.categories << Category.find_by(name: 'Collars')
-harness.categories << Category.find_by(name: 'Harnesses')
-leash.categories << Category.find_by(name: 'Leashes')
-bed.categories << Category.find_by(name: 'Beds')
-
-puts "Seed completed successfully!"AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
+puts "Seed completed successfully! Created #{total_products} products across #{categories.length} categories."

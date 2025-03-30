@@ -42,4 +42,26 @@ class ProductsController < ApplicationController
     @products = @category.products.page(params[:page]).per(12)
     render :index
   end
+  
+  def search
+    @query = params[:query]
+    @categories = Category.all
+    
+    @products = Product.all
+    
+    # Filter by query if present
+    if @query.present?
+      @products = @products.where("products.name ILIKE ? OR products.description ILIKE ?", "%#{@query}%", "%#{@query}%")
+    end
+    
+    # Filter by category if selected
+    if params[:category_id].present?
+      @products = @products.joins(:categories).where(categories: { id: params[:category_id] })
+    end
+    
+    # Paginate results
+    @products = @products.page(params[:page]).per(12)
+    
+    render :index
+  end
 end
