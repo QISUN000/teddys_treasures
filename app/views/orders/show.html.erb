@@ -38,8 +38,11 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <% if item.product.images.attached? %>
-                          <%= image_tag item.product.images.first.variant(resize_to_fit: [60, 60]), 
-                                        alt: item.product.name, class: 'img-fluid rounded me-3', style: 'width: 60px;' %>
+                          <%= image_tag item.product.images.first, 
+                                      alt: item.product.name, class: 'img-fluid rounded me-3', style: 'width: 60px;' %>
+                        <% else %>
+                          <%= image_tag 'placeholder-product.png', class: 'img-fluid rounded me-3', style: 'width: 60px;', 
+                                       alt: 'No image available' %>
                         <% end %>
                         <span><%= item.product.name %></span>
                       </div>

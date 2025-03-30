@@ -1,6 +1,5 @@
 class CartsController < ApplicationController
   def show
-    # Eager load products with images to avoid N+1 queries
     @cart_items = {}
     products = Product.where(id: current_cart.keys)
     
@@ -8,7 +7,6 @@ class CartsController < ApplicationController
       @cart_items[product] = current_cart[product.id.to_s]
     end
     
-    # Remove any products that couldn't be found
     current_cart.keys.each do |product_id|
       unless products.exists?(id: product_id)
         current_cart.delete(product_id)
@@ -71,7 +69,6 @@ class CartsController < ApplicationController
     session[:cart] ||= {}
   end
   
-  # Helper method for views
   helper_method :cart_count, :cart_total
   
   def cart_count

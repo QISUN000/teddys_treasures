@@ -30,8 +30,11 @@
                     <div class="row align-items-center">
                       <div class="col-2 col-md-1">
                         <% if item.product.images.attached? %>
-                          <%= image_tag item.product.images.first.variant(resize_to_fit: [60, 60]), 
-                                        alt: item.product.name, class: 'img-fluid rounded' %>
+                          <%= image_tag item.product.images.first, 
+                                      alt: item.product.name, class: 'img-fluid rounded' %>
+                        <% else %>
+                          <%= image_tag 'placeholder-product.png', class: 'img-fluid rounded', 
+                                       alt: 'No image available' %>
                         <% end %>
                       </div>
                       <div class="col-7 col-md-9">

@@ -2,13 +2,11 @@ class ProductsController < ApplicationController
   def index
     @products = Product.all
     
-    # Filter by category
     if params[:category_id].present?
       @category = Category.find_by(id: params[:category_id])
       @products = @products.joins(:categories).where(categories: { id: params[:category_id] }) if @category
     end
     
-    # Filter by status
     if params[:filter].present?
       case params[:filter]
       when 'on_sale'
@@ -20,7 +18,6 @@ class ProductsController < ApplicationController
       end
     end
     
-    # Search by keyword
     if params[:query].present?
       @query = params[:query].strip
       @products = @products.where("name ILIKE ? OR description ILIKE ?", "%#{@query}%", "%#{@query}%")

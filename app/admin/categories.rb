@@ -1,4 +1,3 @@
-# app/admin/categories.rb
 ActiveAdmin.register Category do
   # Keep permit_params with image
   permit_params :name, :description, :image

@@ -1,0 +1,50 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h2 class="h4 mb-0">Edit Address</h2>
+        </div>
+        <div class="card-body">
+          <%= form_with model: [@address], url: profile_address_path(@address), local: true do |f| %>
+            <% if @address.errors.any? %>
+              <div class="alert alert-danger">
+                <h3>The following errors prevented the address from being saved:</h3>
+                <ul>
+                  <% @address.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="form-group mb-3">
+              <%= f.label :street, class: "form-label" %>
+              <%= f.text_field :street, class: "form-control" %>
+            </div>
+
+            <div class="form-group mb-3">
+              <%= f.label :city, class: "form-label" %>
+              <%= f.text_field :city, class: "form-control" %>
+            </div>
+
+            <div class="form-group mb-3">
+              <%= f.label :postal_code, class: "form-label" %>
+              <%= f.text_field :postal_code, class: "form-control" %>
+            </div>
+
+            <div class="form-group mb-3">
+              <%= f.label :province_id, class: "form-label" %>
+              <%= f.collection_select :province_id, @provinces, :id, :name, {}, {class: "form-select"} %>
+            </div>
+
+            <div class="form-group mt-4">
+              <%= f.submit "Update Address", class: "btn btn-primary" %>
+              <%= link_to "Cancel", profile_path, class: "btn btn-outline-secondary ms-2" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

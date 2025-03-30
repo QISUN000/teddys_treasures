@@ -1,0 +1,86 @@
+<div class="container my-5">
+  <h1 class="mb-4">My Account</h1>
+  
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Account Details</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Name:</strong> <%= current_user.first_name %> <%= current_user.last_name %></p>
+          <p><strong>Email:</strong> <%= current_user.email %></p>
+          <%= link_to "Edit Account", edit_user_registration_path, class: "btn btn-sm btn-outline-primary" %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">My Addresses</h5>
+          <%= link_to "Add New Address", new_profile_address_path, class: "btn btn-sm btn-primary" %>
+        </div>
+        <div class="card-body">
+          <% if @addresses.empty? %>
+            <p class="text-muted">You haven't added any addresses yet.</p>
+          <% else %>
+            <div class="row">
+              <% @addresses.each do |address| %>
+                <div class="col-md-6 mb-3">
+                  <div class="card">
+                    <div class="card-body">
+                      <p><%= address.street %><br>
+                      <%= address.city %>, <%= address.province.code %> <%= address.postal_code %></p>
+                      <div class="btn-group">
+                        <%= link_to "Edit", edit_profile_address_path(address), class: "btn btn-sm btn-outline-secondary" %>
+                       <%= button_to "Remove", profile_address_path(address), method: :delete, class: "btn btn-sm btn-outline-danger" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h5>Order History</h5>
+        </div>
+        <div class="card-body">
+          <% if @orders.empty? %>
+            <p class="text-muted">You haven't placed any orders yet.</p>
+            <%= link_to "Start Shopping", products_path, class: "btn btn-primary" %>
+          <% else %>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @orders.each do |order| %>
+                    <tr>
+                      <td><%= order.id %></td>
+                      <td><%= order.created_at.strftime("%b %d, %Y") %></td>
+                      <td><span class="badge <%= order_status_badge(order.status) %>"><%= order.status.humanize %></span></td>
+                      <td><%= number_to_currency(order.total/100.0) %></td>
+                      <td><%= link_to "View", order_path(order), class: "btn btn-sm btn-outline-primary" %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

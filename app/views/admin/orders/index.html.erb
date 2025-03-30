@@ -1,0 +1,131 @@
+<!-- app/views/admin/orders/index.html.erb -->
+<div class="table_tools">
+  <div class="scopes">
+    <span class="scope selected">
+      <a href="#" id="view-orders">Orders</a>
+    </span>
+    <span class="scope">
+      <a href="#" id="view-customers">Customer Report</a>
+    </span>
+  </div>
+</div>
+
+<!-- Standard Orders Table -->
+<div id="orders-table" class="index_as_table">
+  <div class="paginated_collection">
+    <div class="pagination_information">
+      Displaying <b>all <%= @orders.count %></b> Orders
+    </div>
+    
+    <table border="0" cellspacing="0" cellpadding="0" id="index_table_orders" class="index_table index">
+      <thead>
+        <tr>
+          <th class="sortable col col-id">ID</th>
+          <th class="sortable col col-user">Customer</th>
+          <th class="sortable col col-status">Status</th>
+          <th class="sortable col col-total">Total</th>
+          <th class="sortable col col-created_at">Created At</th>
+          <th class="col col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @orders.each do |order| %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <td class="col col-id"><%= order.id %></td>
+            <td class="col col-user"><%= "#{order.user.first_name} #{order.user.last_name}" %></td>
+            <td class="col col-status"><span class="status_tag <%= order.status %>"><%= order.status %></span></td>
+            <td class="col col-total">$<%= '%.2f' % (order.total/100.0) %></td>
+            <td class="col col-created_at"><%= order.created_at.strftime("%b %d, %Y %H:%M") %></td>
+            <td class="col col-actions">
+              <div class="table_actions">
+                <%= link_to "View", admin_order_path(order), class: "view_link member_link" %>
+                <%= link_to "Edit", edit_admin_order_path(order), class: "edit_link member_link" %>
+                <%= button_to "Delete", admin_order_path(order), method: :delete, form: { style: "display: inline", data: { turbo_confirm: "Are you sure?" } }, class: "delete_link member_link" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Customer Report Table -->
+<div id="customers-report" class="index_as_table" style="display: none;">
+  <div class="paginated_collection">
+    <div class="pagination_information">
+      Displaying <b>all <%= @users_with_orders.count %></b> Customers with Orders
+    </div>
+    
+    <table border="0" cellspacing="0" cellpadding="0" class="index_table index">
+      <thead>
+        <tr>
+          <th class="col">Customer</th>
+          <th class="col">Email</th>
+          <th class="col">Orders</th>
+          <th class="col">Products Ordered</th>
+          <th class="col">Total Taxes</th>
+          <th class="col">Grand Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users_with_orders.each do |user| %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <td class="col"><%= "#{user.first_name} #{user.last_name}" %></td>
+            <td class="col"><%= user.email %></td>
+            <td class="col"><%= user.orders.count %></td>
+            <td class="col">
+              <ul style="margin: 0; padding-left: 15px;">
+                <% products = [] %>
+                <% user.orders.each do |order| %>
+                  <% order.order_items.each do |item| %>
+                    <% products << "#{item.quantity} × #{item.product.name}" %>
+                  <% end %>
+                <% end %>
+                <% products.uniq.each do |product| %>
+                  <li><%= product %></li>
+                <% end %>
+              </ul>
+            </td>
+            <td class="col">
+              <% tax_total = user.orders.sum(:gst_amount) + user.orders.sum(:pst_amount) + user.orders.sum(:hst_amount) %>
+              $<%= '%.2f' % (tax_total/100.0) %>
+            </td>
+            <td class="col">$<%= '%.2f' % (user.orders.sum(:total)/100.0) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="new-resource">
+  <%= link_to "New Order", new_admin_order_path, class: "button" %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle between Orders and Customer Report views
+    document.getElementById('view-orders').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('orders-table').style.display = 'block';
+      document.getElementById('customers-report').style.display = 'none';
+      
+      document.querySelectorAll('.scope').forEach(function(scope) {
+        scope.classList.remove('selected');
+      });
+      this.parentNode.classList.add('selected');
+    });
+    
+    document.getElementById('view-customers').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('orders-table').style.display = 'none';
+      document.getElementById('customers-report').style.display = 'block';
+      
+      document.querySelectorAll('.scope').forEach(function(scope) {
+        scope.classList.remove('selected');
+      });
+      this.parentNode.classList.add('selected');
+    });
+  });
+</script>
