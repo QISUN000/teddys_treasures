@@ -123,6 +123,21 @@ bed = Product.create!(
   sku: 'BED-CLD-001'
 )
 
+Page.find_or_create_by(slug: 'about') do |page|
+  page.title = 'About Teddy\'s Treasures'
+  page.content = "Teddy's Treasures was founded in 2020 in Winnipeg, Manitoba. We create premium, handcrafted accessories for pets that combine comfort, style, and durability.\n\nOur products are designed with both pets and their owners in mind, ensuring that your furry friend looks as stylish as you do."
+end
+
+Page.find_or_create_by(slug: 'contact') do |page|
+  page.title = 'Contact Us'
+  page.content = "Email: info@teddystreasures.com\nPhone: (204) 555-5555\n\nOur boutique is located at:\n123 Main Street\nWinnipeg, MB R3C 1A3\n\nHours:\nMonday to Friday: 9am - 6pm\nSaturday: 10am - 5pm\nSunday: Closed"
+end
+
+Page.find_or_create_by(slug: 'faq') do |page|
+  page.title = 'Frequently Asked Questions'
+  page.content = "### How do I determine the right size for my pet?\nMeasure your pet's neck or chest circumference depending on the product type. Each size has a specified measurement range.\n\n### Where are Teddy's Treasures products made?\nAll our products are designed and manufactured in Winnipeg, Manitoba.\n\n### How do I care for your products?\nMost of our products can be machine washed at 30°C on a delicate cycle. Air drying is recommended for best results."
+end
+
 # Assign categories
 collar.categories << Category.find_by(name: 'Collars')
 harness.categories << Category.find_by(name: 'Harnesses')
