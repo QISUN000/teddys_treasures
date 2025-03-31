@@ -97,3 +97,5 @@ gem 'stripe'
 gem 'aws-sdk-s3', require: false
 
 gem 'bootstrap', '~> 5.3.0'
+
+gem 'down', '~> 5.0'

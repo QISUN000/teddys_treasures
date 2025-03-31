@@ -20,7 +20,7 @@ class ProductsController < ApplicationController
     
     if params[:query].present?
       @query = params[:query].strip
-      @products = @products.where("name ILIKE ? OR description ILIKE ?", "%#{@query}%", "%#{@query}%")
+      @products = @products.where("name ILIKE ?", "%#{@query}%")
     end
     
     @products = @products.page(params[:page]).per(12)
@@ -51,7 +51,7 @@ class ProductsController < ApplicationController
     
     # Filter by query if present
     if @query.present?
-      @products = @products.where("products.name ILIKE ? OR products.description ILIKE ?", "%#{@query}%", "%#{@query}%")
+      @products = @products.where("products.name ILIKE ?", "%#{@query}%")
     end
     
     # Filter by category if selected

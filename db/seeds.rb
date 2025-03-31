@@ -4,18 +4,39 @@ require 'uri'
 require 'json'
 require 'down'
 
-# Clear existing products and categories if needed
-# Only use this in development environment
-if Rails.env.development?
-  puts "Clearing existing products and categories..."
+
   OrderItem.destroy_all
   Order.destroy_all
   ProductCategory.destroy_all
   Product.destroy_all
   Category.destroy_all
-end
+  Province.destroy_all
 
-# Create categories
+  provinces = [
+    { name: 'Alberta', code: 'AB', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+    { name: 'British Columbia', code: 'BC', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
+    { name: 'Manitoba', code: 'MB', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
+    { name: 'New Brunswick', code: 'NB', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+    { name: 'Newfoundland and Labrador', code: 'NL', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+    { name: 'Northwest Territories', code: 'NT', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+    { name: 'Nova Scotia', code: 'NS', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+    { name: 'Nunavut', code: 'NU', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+    { name: 'Ontario', code: 'ON', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 13.0 },
+    { name: 'Prince Edward Island', code: 'PE', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+    { name: 'Quebec', code: 'QC', gst_rate: 5.0, pst_rate: 9.975, hst_rate: 0.0 },
+    { name: 'Saskatchewan', code: 'SK', gst_rate: 5.0, pst_rate: 6.0, hst_rate: 0.0 },
+    { name: 'Yukon', code: 'YT', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 }
+  ]
+  
+  provinces.each do |province_data|
+    Province.find_or_create_by!(name: province_data[:name]) do |province|
+      province.code = province_data[:code]
+      province.gst_rate = province_data[:gst_rate]
+      province.pst_rate = province_data[:pst_rate]
+      province.hst_rate = province_data[:hst_rate]
+    end
+  end
+
 puts "Creating categories..."
 categories = [
   { name: 'Collars', description: 'Stylish and comfortable dog collars' },
@@ -31,7 +52,6 @@ categories.each do |category|
   end
 end
 
-# Product attributes for variety
 puts "Preparing product attributes..."
 materials = ['Leather', 'Nylon', 'Cotton', 'Hemp', 'Recycled', 'Vegan', 'Plush', 'Microfiber', 'Velvet', 'Wool']
 patterns = ['Solid', 'Striped', 'Polka Dot', 'Checkered', 'Floral', 'Geometric', 'Paw Print', 'Bone', 'Hearts', 'Stars']
@@ -67,7 +87,7 @@ end
 
 # Function to fetch dog images from the Dog.ceo API
 def fetch_dog_images(limit = 100)
-  # Dog.ceo API provides random dog images
+
   url = URI("https://dog.ceo/api/breeds/image/random/#{limit}")
   
   response = Net::HTTP.get_response(url)
@@ -76,17 +96,16 @@ def fetch_dog_images(limit = 100)
   data = JSON.parse(response.body)
   return [] unless data["status"] == "success"
   
-  data["message"] # Array of image URLs
+  data["message"] 
 rescue => e
   puts "Error fetching from Dog.ceo API: #{e.message}"
   return []
 end
 
-# Fetch all dog images at once
-puts "Fetching dog images from API..."
-all_dog_images = fetch_dog_images(120) # Fetch more than needed in case some fail
 
-# Product name templates by category
+puts "Fetching dog images from API..."
+all_dog_images = fetch_dog_images(120) 
+
 collar_templates = [
   "#{materials.sample} #{patterns.sample} Collar",
   "#{colors.sample} #{materials.sample} Collar",
@@ -122,7 +141,6 @@ bed_templates = [
 total_products = 0
 current_image_index = 0
 
-# Create products for each category
 categories.each do |category|
   puts "Creating #{category[:name]}..."
   
@@ -133,7 +151,7 @@ categories.each do |category|
               when 'Beds' then bed_templates
               end
   
-  25.times do |i|
+  100.times do |i|
     name = "#{templates.sample}"
     description = "#{Faker::Marketing.buzzwords.capitalize} #{materials.sample.downcase} #{category[:name].downcase.singularize} with #{patterns.sample.downcase} pattern. #{Faker::Lorem.paragraph(sentence_count: 3)}"
     
@@ -157,10 +175,9 @@ categories.each do |category|
   end
 end
 
-# Create some multi-category products
+
 puts "Creating multi-category products..."
 5.times do |i|
-  # Collar and leash sets
   materials_sample = materials.sample
   colors_sample = colors.sample
   name = "#{colors_sample} #{materials_sample} Collar & Leash Set"
@@ -170,7 +187,6 @@ puts "Creating multi-category products..."
   product.categories << category_records['Collars']
   product.categories << category_records['Leashes']
   
-  # Attach image from API if available
   if current_image_index < all_dog_images.length
     begin
       image_url = all_dog_images[current_image_index]
