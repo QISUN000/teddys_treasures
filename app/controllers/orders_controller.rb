@@ -32,7 +32,7 @@ class OrdersController < ApplicationController
     end
     
     # Get or create address
-    if params[:address_id].present?
+    if params[:address_id].present? && params[:address_id] != 'new'
       address = current_user.addresses.find_by(id: params[:address_id])
     else
       address = current_user.addresses.build(address_params)
@@ -72,11 +72,29 @@ class OrdersController < ApplicationController
         )
       end
       
+      # Clear the cart
       session[:cart] = {}
       
-      @order.update(status: :paid)
-      
-      redirect_to order_path(@order), notice: 'Order placed successfully!'
+      # Check if we have a payment method ID
+      if params[:payment_method_id].present?
+        # Process payment
+        service = StripeService.new(@order, payment_params)
+        result = service.process_payment
+        
+        if result[:success]
+          # Send confirmation email
+          OrderMailer.with(order: @order).confirmation_email.deliver_later
+          
+          redirect_to order_confirmation_path(@order), notice: 'Payment successful! Your order has been confirmed.'
+        else
+          # Payment failed
+          Rails.logger.error("Payment failed: #{result[:error]}")
+          redirect_to order_path(@order), alert: "Payment failed: #{result[:error]}"
+        end
+      else
+        # No payment method provided - redirect to payment page
+        redirect_to payment_order_path(@order), notice: 'Order created. Please complete your payment.'
+      end
     else
       @addresses = current_user.addresses
       @provinces = Province.all
@@ -96,18 +114,21 @@ class OrdersController < ApplicationController
     @provinces = Province.all
   end
   
-  private
-  
-  def address_params
-    params.require(:address).permit(:street, :city, :postal_code, :province_id)
+  def payment
+    @order = current_user.orders.find(params[:id])
+    
+    # Only show payment form for pending orders
+    unless @order.pending?
+      redirect_to order_path(@order), alert: 'This order has already been processed.'
+      return
+    end
+    
+    # Set up Stripe payment intent client-side
+    @publishable_key = Rails.configuration.stripe[:publishable_key]
   end
   
-  def calculate_subtotal(cart_items)
-    cart_items.sum { |product, quantity| product.price * quantity }
-  end
-
   def process_payment
-    @order = Order.find(params[:id])
+    @order = current_user.orders.find(params[:id])
     
     # Only process payment for pending orders
     unless @order.pending?
@@ -121,21 +142,34 @@ class OrdersController < ApplicationController
     
     if result[:success]
       # Send confirmation email
-      OrderMailer.with(order: @order).confirmation_email.deliver_later if @order.user
+      OrderMailer.with(order: @order).confirmation_email.deliver_later
       
       redirect_to order_confirmation_path(@order), notice: 'Payment successful! Your order has been confirmed.'
     else
       # Log error and redirect
       Rails.logger.error("Payment failed: #{result[:error]}")
-      redirect_to order_path(@order), alert: "Payment failed: #{result[:error]}"
+      redirect_to payment_order_path(@order), alert: "Payment failed: #{result[:error]}"
     end
   end
   
   def confirmation
-    @order = Order.find(params[:id])
+    @order = current_user.orders.find(params[:id])
+    
+    # Only allow viewing if paid
+    unless @order.paid?
+      redirect_to order_path(@order), alert: 'This order has not been paid yet.'
+    end
   end
   
   private
+  
+  def address_params
+    params.require(:address).permit(:street, :city, :postal_code, :province_id)
+  end
+  
+  def calculate_subtotal(cart_items)
+    cart_items.sum { |product, quantity| product.price * quantity }
+  end
   
   def payment_params
     params.permit(:payment_method_id, :email)

@@ -1,0 +1,160 @@
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="h4 mb-0">Complete Your Payment</h2>
+        </div>
+        <div class="card-body">
+          <div class="order-summary mb-4">
+            <h3 class="h5">Order Summary</h3>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @order.order_items.each do |item| %>
+                    <tr>
+                      <td><%= item.product.name %></td>
+                      <td><%= item.quantity %></td>
+                      <td><%= number_to_currency(item.price_at_purchase/100.0) %></td>
+                      <td><%= number_to_currency((item.price_at_purchase * item.quantity)/100.0) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="3" class="text-end">Subtotal:</th>
+                    <td><%= number_to_currency(@order.subtotal/100.0) %></td>
+                  </tr>
+                  <% if @order.gst_amount > 0 %>
+                    <tr>
+                      <th colspan="3" class="text-end">GST (<%= @order.gst_rate %>%):</th>
+                      <td><%= number_to_currency(@order.gst_amount/100.0) %></td>
+                    </tr>
+                  <% end %>
+                  <% if @order.pst_amount > 0 %>
+                    <tr>
+                      <th colspan="3" class="text-end">PST (<%= @order.pst_rate %>%):</th>
+                      <td><%= number_to_currency(@order.pst_amount/100.0) %></td>
+                    </tr>
+                  <% end %>
+                  <% if @order.hst_amount > 0 %>
+                    <tr>
+                      <th colspan="3" class="text-end">HST (<%= @order.hst_rate %>%):</th>
+                      <td><%= number_to_currency(@order.hst_amount/100.0) %></td>
+                    </tr>
+                  <% end %>
+                  <tr>
+                    <th colspan="3" class="text-end">Total:</th>
+                    <td class="fw-bold"><%= number_to_currency(@order.total/100.0) %></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="payment-form">
+            <%= form_tag process_payment_order_path(@order), method: :post, id: 'payment-form' do %>
+              <div class="mb-3">
+                <label for="cardholder-name" class="form-label">Cardholder Name</label>
+                <input id="cardholder-name" type="text" class="form-control" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="cardholder-email" class="form-label">Email</label>
+                <input id="cardholder-email" type="email" value="<%= current_user.email %>" class="form-control" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="card-element" class="form-label">Credit or Debit Card</label>
+                <div id="card-element" class="form-control" style="height: 2.4em; padding-top: .7em;"></div>
+                <div id="card-errors" class="invalid-feedback d-block"></div>
+              </div>
+              
+              <div class="d-grid gap-2">
+                <button id="submit-payment" type="submit" class="btn btn-primary">Pay <%= number_to_currency(@order.total/100.0) %></button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+<%= content_for :head do %>
+  <meta name="stripe-key" content="<%= @publishable_key %>">
+<% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const stripeForm = document.getElementById('payment-form');
+  
+  if (stripeForm) {
+    // Initialize Stripe with your publishable key
+    const stripe = Stripe(document.querySelector('meta[name="stripe-key"]').getAttribute('content'));
+    const elements = stripe.elements();
+    
+    // Create and mount the Payment Element
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+    
+    // Handle form submission
+    stripeForm.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      const submitButton = document.getElementById('submit-payment');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Processing...';
+      
+      const errorElement = document.getElementById('card-errors');
+      
+      try {
+        // Create payment method
+        const result = await stripe.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+          billing_details: {
+            name: document.getElementById('cardholder-name').value,
+            email: document.getElementById('cardholder-email').value
+          },
+        });
+        
+        if (result.error) {
+          // Show error to your customer
+          errorElement.textContent = result.error.message;
+          submitButton.disabled = false;
+          submitButton.textContent = 'Pay Now';
+        } else {
+          // Send payment method ID to server
+          const paymentMethodId = result.paymentMethod.id;
+          
+          // Add the payment method ID to a hidden input field
+          const hiddenInput = document.createElement('input');
+          hiddenInput.setAttribute('type', 'hidden');
+          hiddenInput.setAttribute('name', 'payment_method_id');
+          hiddenInput.setAttribute('value', paymentMethodId);
+          stripeForm.appendChild(hiddenInput);
+          
+          // Submit the form
+          stripeForm.submit();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorElement.textContent = 'An unexpected error occurred. Please try again.';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Pay Now';
+      }
+    });
+  }
+});
+</script>

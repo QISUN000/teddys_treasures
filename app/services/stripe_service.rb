@@ -12,6 +12,10 @@ class StripeService
       payment_method: @params[:payment_method_id],
       confirmation_method: 'manual',
       confirm: true,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never'
+      },
       metadata: {
         order_id: @order.id,
         customer_email: @order.user&.email || @params[:email]

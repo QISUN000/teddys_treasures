@@ -35,6 +35,10 @@ Rails.application.routes.draw do
   resources :orders, only: [:index, :show, :create] do
     collection do
       get 'checkout'
+    end
+    
+    member do
+      get 'payment'
       post 'process_payment'
       get 'confirmation'
     end
