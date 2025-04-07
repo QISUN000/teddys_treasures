@@ -59,7 +59,7 @@ colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink', 'Black', 'White', 
 sizes = ['Small', 'Medium', 'Large', 'X-Small', 'X-Large']
 collections = ['Classic', 'Premium', 'Deluxe', 'Adventure', 'Cozy', 'Urban', 'Seasonal', 'Outdoor', 'Designer', 'Basic']
 
-# Function to create a product with Faker data
+
 def create_product(name, description, category_name, index)
   base_price = case category_name
                when 'Collars' then rand(1990..4990)
