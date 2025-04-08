@@ -85,7 +85,7 @@ class OrdersController < ApplicationController
           # Send confirmation email
           OrderMailer.with(order: @order).confirmation_email.deliver_later
           
-          redirect_to order_confirmation_path(@order), notice: 'Payment successful! Your order has been confirmed.'
+          redirect_to confirmation_order_path(@order), notice: 'Payment successful! Your order has been confirmed.'
         else
           # Payment failed
           Rails.logger.error("Payment failed: #{result[:error]}")
@@ -144,7 +144,7 @@ class OrdersController < ApplicationController
       # Send confirmation email
       OrderMailer.with(order: @order).confirmation_email.deliver_later
       
-      redirect_to order_confirmation_path(@order), notice: 'Payment successful! Your order has been confirmed.'
+      redirect_to confirmation_order_path(@order), notice: 'Payment successful! Your order has been confirmed.'
     else
       # Log error and redirect
       Rails.logger.error("Payment failed: #{result[:error]}")

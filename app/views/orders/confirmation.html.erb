@@ -1,81 +1,101 @@
-<div class="order-confirmation">
-  <div class="confirmation-icon">
-    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-      <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-      <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-    </svg>
-  </div>
-  
-  <h1>Thank You for Your Order!</h1>
-  <p class="confirmation-number">Order #<%= @order.id %></p>
-  
-  <div class="confirmation-message">
-    <p>Your order has been confirmed and is now being processed.</p>
-    <p>You will receive an order confirmation email shortly.</p>
-  </div>
-  
-  <div class="order-summary">
-    <h2>Order Summary</h2>
-    
-    <div class="order-items">
-      <% @order.order_items.each do |item| %>
-        <div class="order-item">
-          <div class="item-image">
-            <% if item.product.images.attached? %>
-              <%= image_tag item.product.images.first.variant(resize_to_fit: [60, 60]), alt: item.product.name %>
-            <% end %>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center p-5">
+          <div class="mb-4">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
           </div>
           
-          <div class="item-details">
-            <h4><%= item.product.name %></h4>
-            <p>Quantity: <%= item.quantity %></p>
+          <h1 class="h2 mb-3">Thank You for Your Order!</h1>
+          <p class="lead mb-4">Order #<%= @order.id %></p>
+          
+          <div class="alert alert-success mb-4">
+            <p class="mb-0">Your order has been confirmed and is now being processed.</p>
+            <p class="mb-0">You will receive an order confirmation email shortly.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h2 class="h4 mb-0">Order Summary</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th class="text-center">Quantity</th>
+                  <th class="text-end">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @order.order_items.each do |item| %>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <% if item.product.images.attached? %>
+                          <%= image_tag item.product.images.first, alt: item.product.name, 
+                                      class: "img-thumbnail me-3", style: "width: 60px; height: 60px; object-fit: cover;" %>
+                        <% end %>
+                        <span><%= item.product.name %></span>
+                      </div>
+                    </td>
+                    <td class="text-center"><%= item.quantity %></td>
+                    <td class="text-end"><%= number_to_currency(item.price_at_purchase * item.quantity / 100.0) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
           </div>
           
-          <div class="item-price">
-            <%= number_to_currency(item.price_at_purchase * item.quantity / 100.0) %>
+          <div class="row justify-content-end mt-4">
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <span><%= number_to_currency(@order.subtotal/100.0) %></span>
+              </div>
+              
+              <% if @order.gst_amount > 0 %>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>GST (<%= @order.gst_rate %>%):</span>
+                  <span><%= number_to_currency(@order.gst_amount/100.0) %></span>
+                </div>
+              <% end %>
+              
+              <% if @order.pst_amount > 0 %>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>PST (<%= @order.pst_rate %>%):</span>
+                  <span><%= number_to_currency(@order.pst_amount/100.0) %></span>
+                </div>
+              <% end %>
+              
+              <% if @order.hst_amount > 0 %>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>HST (<%= @order.hst_rate %>%):</span>
+                  <span><%= number_to_currency(@order.hst_amount/100.0) %></span>
+                </div>
+              <% end %>
+              
+              <hr>
+              
+              <div class="d-flex justify-content-between fw-bold">
+                <span>Total:</span>
+                <span><%= number_to_currency(@order.total/100.0) %></span>
+              </div>
+            </div>
           </div>
         </div>
-      <% end %>
-    </div>
-    
-    <div class="order-totals">
-      <div class="total-row">
-        <span>Subtotal:</span>
-        <span><%= number_to_currency(@order.subtotal/100.0) %></span>
       </div>
       
-      <% if @order.gst_amount > 0 %>
-        <div class="total-row">
-          <span>GST (<%= @order.gst_rate %>%):</span>
-          <span><%= number_to_currency(@order.gst_amount/100.0) %></span>
-        </div>
-      <% end %>
-      
-      <% if @order.pst_amount > 0 %>
-        <div class="total-row">
-          <span>PST (<%= @order.pst_rate %>%):</span>
-          <span><%= number_to_currency(@order.pst_amount/100.0) %></span>
-        </div>
-      <% end %>
-      
-      <% if @order.hst_amount > 0 %>
-        <div class="total-row">
-          <span>HST (<%= @order.hst_rate %>%):</span>
-          <span><%= number_to_currency(@order.hst_amount/100.0) %></span>
-        </div>
-      <% end %>
-      
-      <div class="total-row grand-total">
-        <span>Total:</span>
-        <span><%= number_to_currency(@order.total/100.0) %></span>
+      <div class="d-flex gap-3 justify-content-center">
+        <%= link_to 'Continue Shopping', products_path, class: 'btn btn-primary' %>
+        <% if user_signed_in? %>
+          <%= link_to 'View All Orders', orders_path, class: 'btn btn-outline-secondary' %>
+        <% end %>
       </div>
     </div>
-  </div>
-  
-  <div class="confirmation-actions">
-    <%= link_to 'Continue Shopping', products_path, class: 'btn-primary' %>
-    <% if user_signed_in? %>
-      <%= link_to 'View All Orders', orders_path, class: 'btn-secondary' %>
-    <% end %>
   </div>
 </div>

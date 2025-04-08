@@ -10,7 +10,6 @@ class StripeService
       currency: 'cad',
       description: "Order ##{@order.id} - Teddy's Treasures",
       payment_method: @params[:payment_method_id],
-      confirmation_method: 'manual',
       confirm: true,
       automatic_payment_methods: {
         enabled: true,

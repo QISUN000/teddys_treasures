@@ -40,7 +40,7 @@ Rails.application.routes.draw do
     member do
       get 'payment'
       post 'process_payment'
-      get 'confirmation'
+      get 'confirmation', as: 'confirmation'
     end
   end
   

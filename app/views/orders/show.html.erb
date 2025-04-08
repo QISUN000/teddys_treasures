@@ -192,7 +192,7 @@
                 }).then(r => r.json());
                 
                 if (result.success) {
-                  window.location.href = '<%= order_confirmation_path(@order) %>';
+                  window.location.href = '<%= confirmation_order_path(@order) %>';
                 } else {
                   errorElement.textContent = result.error || 'An error occurred during payment.';
                   submitButton.disabled = false;
