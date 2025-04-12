@@ -13,6 +13,15 @@ class CartsController < ApplicationController
         session[:cart] = current_cart
       end
     end
+    
+    # Make session data available to view
+    @visit_count = session[:visit_count]
+    @last_visit = session[:last_visit]
+    
+    # Use a custom flash message if cart has items
+    if current_cart.any? && !flash[:notice] && !flash[:info] && !flash[:error]
+      flash.now[:warning] = "You have items waiting in your cart. Proceed to checkout?"
+    end
   end
 
   def add_item
@@ -20,12 +29,21 @@ class CartsController < ApplicationController
     if product
       current_cart[product.id.to_s] = current_cart[product.id.to_s].to_i + params[:quantity].to_i
       session[:cart] = current_cart
-      notice = 'Item added to cart.'
+      
+      # Use custom flash type based on cart size
+      if current_cart.size >= 3
+        flash[:info] = "You have #{current_cart.size} items in your cart!"
+      else
+        flash[:notice] = 'Item added to cart.'
+      end
     else
-      notice = 'Product not found.'
+      flash[:error] = 'Product not found.'
     end
     
-    redirect_back fallback_location: products_path, notice: notice
+    # Store last added product in session
+    session[:last_added_product] = product.id if product
+    
+    redirect_back fallback_location: products_path
   end
 
   def remove_item

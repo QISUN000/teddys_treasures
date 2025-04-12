@@ -1,6 +1,15 @@
 <div class="container py-5">
   <h1 class="mb-4">Your Cart <span class="badge bg-secondary"><%= cart_count %></span></h1>
   
+  <% if session[:last_added_product].present? %>
+    <div class="alert alert-warning">
+      <strong>Last item added:</strong> Product #<%= session[:last_added_product] %>
+      <% if @visit_count && @visit_count > 1 %>
+        <span class="badge bg-secondary ms-2">Returning customer: <%= @visit_count %> visits</span>
+      <% end %>
+    </div>
+  <% end %>
+  
   <% if current_cart.empty? %>
     <div class="card text-center py-5">
       <div class="card-body">

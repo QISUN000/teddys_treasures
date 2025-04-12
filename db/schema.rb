@@ -91,6 +91,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_233422) do
     t.bigint "order_id", null: false
     t.bigint "product_id", null: false
     t.integer "quantity"
+    #  stores the product's price
     t.decimal "price_at_purchase"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

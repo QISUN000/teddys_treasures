@@ -41,9 +41,16 @@
   </div>
 </header>
 
-<% if notice || alert %>
+<% if flash.any? %>
   <div class="container my-3">
-    <% if notice %><div class="alert alert-success"><%= notice %></div><% end %>
-    <% if alert %><div class="alert alert-danger"><%= alert %></div><% end %>
+    <% flash.each do |type, message| %>
+      <%= custom_flash_message(type, message) %>
+    <% end %>
+    
+    <% if session[:visit_count] && session[:visit_count] > 3 && controller_name == 'home' %>
+      <div class="alert alert-info">
+        <%= icon_for_flash_type(:info) %> <strong>Welcome back!</strong> Your session data is being tracked: <%= session_info %>
+      </div>
+    <% end %>
   </div>
 <% end %>

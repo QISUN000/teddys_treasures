@@ -7,6 +7,15 @@
           <p class="text-uppercase mb-2 letter-spacing-2">Premium Pet Accessories</p>
           <h1 class="display-4 fw-bold mb-4">Your Pet Deserves The Best</h1>
           <%= link_to 'Shop Catalog', products_path, class: 'btn btn-outline-light px-4 py-2 text-uppercase' %>
+          
+          <% if @visit_count && @visit_count > 1 %>
+            <div class="mt-3 p-2 bg-dark bg-opacity-75 rounded">
+              <p class="mb-0">Welcome back! Visit count: <%= @visit_count %></p>
+              <% if @last_visit %>
+                <small>Last visit: <%= time_ago_in_words(@last_visit) %> ago</small>
+              <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

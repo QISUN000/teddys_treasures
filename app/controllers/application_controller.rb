@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   before_action :set_categories
-  helper_method :current_cart, :cart_count, :cart_total
+  before_action :track_user_activity
+  helper_method :current_cart, :cart_count, :cart_total, :last_visit
   
   # For Devise
   before_action :configure_permitted_parameters, if: :devise_controller?
@@ -14,6 +15,25 @@ class ApplicationController < ActionController::Base
   
   def set_categories
     @categories = Category.all
+  end
+  
+  # Custom flash types
+  add_flash_types :error, :info, :warning
+  
+  # Track user activity using session
+  def track_user_activity
+    session[:last_visit] = Time.current
+    session[:visit_count] ||= 0
+    session[:visit_count] += 1
+    
+    # Show returning visitor message with custom flash
+    if session[:visit_count] > 1 && session[:visit_count] % 5 == 0
+      flash[:info] = "Welcome back! This is your #{session[:visit_count].ordinalize} visit."
+    end
+  end
+  
+  def last_visit
+    session[:last_visit]
   end
   
   def current_cart
