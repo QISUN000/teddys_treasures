@@ -136,7 +136,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mb-1">
                   <span>Subtotal</span>
-                  <span><%= number_to_currency(cart_total / 100.0) %></span>
+                  <span id="cart-subtotal"><%= number_to_currency(cart_total / 100.0) %></span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
                   <span>Shipping</span>
@@ -177,14 +177,21 @@
                       <%= f.text_field 'address[city]', class: 'form-control', required: true %>
                     </div>
                     <div class="col-md-6">
-                      <%= f.label :postal_code, 'ZIP Code', class: 'form-label' %>
+                      <%= f.label :postal_code, 'Postal Code', class: 'form-label' %>
                       <%= f.text_field 'address[postal_code]', class: 'form-control', required: true %>
                     </div>
                   </div>
                   
                   <div class="mb-3">
                     <%= f.label :province_id, 'Province', class: 'form-label' %>
-                    <%= f.collection_select 'address[province_id]', Province.all, :id, :name, {}, class: 'form-select', id: 'province-selector', required: true %>
+                    <%= f.collection_select 'address[province_id]', Province.all, :id, :name, 
+                         { include_blank: 'Select province', selected: Province.find_by(name: 'Manitoba')&.id }, 
+                         { class: 'form-select', id: 'province-selector', required: true, 
+                           data: { 
+                             provinces: Province.all.map { |p| { id: p.id, gst: p.gst_rate, pst: p.pst_rate, hst: p.hst_rate } }.to_json 
+                           }
+                         } 
+                    %>
                   </div>
                   
                   <hr class="my-4">
@@ -231,40 +238,29 @@
     // Province-based tax and shipping calculator
     const provinceSelector = document.getElementById('province-selector');
     if (provinceSelector) {
-      // Define tax rates and shipping fees by province
-      const provinceTaxRates = {
-        // Sample values - replace with actual province IDs and rates
-        '1': { name: 'Alberta', taxRate: 0.05, shippingFee: 1200 },         // 5% GST
-        '2': { name: 'British Columbia', taxRate: 0.12, shippingFee: 1500 }, // 7% PST + 5% GST
-        '3': { name: 'Manitoba', taxRate: 0.13, shippingFee: 1500 },         // 8% PST + 5% GST
-        '4': { name: 'New Brunswick', taxRate: 0.15, shippingFee: 1800 },     // 15% HST
-        '5': { name: 'Newfoundland and Labrador', taxRate: 0.15, shippingFee: 2000 }, // 15% HST
-        '6': { name: 'Northwest Territories', taxRate: 0.05, shippingFee: 2500 }, // 5% GST
-        '7': { name: 'Nova Scotia', taxRate: 0.15, shippingFee: 1800 },       // 15% HST
-        '8': { name: 'Nunavut', taxRate: 0.05, shippingFee: 3000 },           // 5% GST
-        '9': { name: 'Ontario', taxRate: 0.13, shippingFee: 1500 },           // 13% HST
-        '10': { name: 'Prince Edward Island', taxRate: 0.15, shippingFee: 1800 }, // 15% HST
-        '11': { name: 'Quebec', taxRate: 0.14975, shippingFee: 1500 },         // 9.975% QST + 5% GST
-        '12': { name: 'Saskatchewan', taxRate: 0.11, shippingFee: 1500 },      // 6% PST + 5% GST
-        '13': { name: 'Yukon', taxRate: 0.05, shippingFee: 2500 }             // 5% GST
-      };
+      // Get province data from database via data attribute
+      const provincesData = JSON.parse(provinceSelector.dataset.provinces);
 
       // Get cart subtotal in cents
-      const subtotalText = document.querySelector('.col-md-6 .d-flex.justify-content-between.mb-1:first-child span:last-child').textContent;
+      const subtotalText = document.getElementById('cart-subtotal').textContent;
       const subtotalCents = parseFloat(subtotalText.replace(/[^0-9.]/g, '')) * 100;
 
       provinceSelector.addEventListener('change', function() {
         const provinceId = this.value;
-        const provinceData = provinceTaxRates[provinceId];
+        const provinceData = provincesData.find(p => p.id.toString() === provinceId.toString());
         
         if (provinceData) {
-          // Update shipping cost
-          const shippingCost = provinceData.shippingFee;
+          // Set fixed shipping cost - could be customized per province if needed
+          const shippingCost = 1500; // $15.00 in cents
           const shippingElement = document.getElementById('shipping-cost');
           shippingElement.textContent = formatCurrency(shippingCost / 100);
           
-          // Calculate tax
-          const taxAmount = Math.round(subtotalCents * provinceData.taxRate);
+          // Calculate tax using rates from the database
+          const gstAmount = Math.round(subtotalCents * provinceData.gst / 100);
+          const pstAmount = Math.round(subtotalCents * provinceData.pst / 100);
+          const hstAmount = Math.round(subtotalCents * provinceData.hst / 100);
+          const taxAmount = gstAmount + pstAmount + hstAmount;
+          
           const taxElement = document.getElementById('tax-amount');
           taxElement.textContent = formatCurrency(taxAmount / 100);
           
@@ -284,6 +280,18 @@
       function formatCurrency(amount) {
         return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
       }
+    }
+    
+    // Critical fix: Add event listener for when the modal is shown
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+      checkoutModal.addEventListener('shown.bs.modal', function() {
+        // Now that the modal is visible, find the province selector and trigger the change event
+        const provinceSelector = document.getElementById('province-selector');
+        if (provinceSelector && provinceSelector.value) {
+          provinceSelector.dispatchEvent(new Event('change'));
+        }
+      });
     }
   });
 </script>
