@@ -1,12 +1,21 @@
 class OrdersController < ApplicationController
-  before_action :authenticate_user!, except: [:guest_checkout]
+  before_action :authenticate_user!, except: [:create, :payment, :process_payment, :confirmation, :guest_checkout]
   
   def index
     @orders = current_user.orders.order(created_at: :desc).page(params[:page]).per(10)
   end
   
   def show
-    @order = current_user.orders.find(params[:id])
+    @order = if user_signed_in?
+      current_user.orders.find_by(id: params[:id])
+    else
+      Order.find_by(id: params[:id])
+    end
+    
+    unless @order
+      redirect_to root_path, alert: 'Order not found'
+      return
+    end
   end
   
   def checkout
@@ -31,30 +40,26 @@ class OrdersController < ApplicationController
       return
     end
     
-    # Get or create address
-    if params[:address_id].present? && params[:address_id] != 'new'
-      address = current_user.addresses.find_by(id: params[:address_id])
-    else
-      address = current_user.addresses.build(address_params)
-      unless address.save
-        @order = current_user.orders.build
-        @addresses = current_user.addresses
-        @provinces = Province.all
-        @address = address
-        render :checkout and return
-      end
+    # Handle address differently for guests vs logged in users
+    province_id = params.dig(:address, :province_id)
+    province = Province.find_by(id: province_id)
+    
+    if province.nil?
+      redirect_to cart_path, alert: 'Invalid province selected.'
+      return
     end
     
-    province = address.province
     subtotal = calculate_subtotal(@cart_items)
     
-    # Create order
-    @order = current_user.orders.build(
+    # Create order with or without user
+    @order = Order.new(
+      user: current_user, # Will be nil for guests
       status: :pending,
       subtotal: subtotal,
       gst_rate: province.gst_rate,
       pst_rate: province.pst_rate,
-      hst_rate: province.hst_rate
+      hst_rate: province.hst_rate,
+      email: params[:email]
     )
     
     # Calculate tax amounts
@@ -64,6 +69,7 @@ class OrdersController < ApplicationController
     @order.total = subtotal + @order.gst_amount + @order.pst_amount + @order.hst_amount
     
     if @order.save
+      # Create order items
       @cart_items.each do |product, quantity|
         @order.order_items.create(
           product: product,
@@ -82,24 +88,20 @@ class OrdersController < ApplicationController
         result = service.process_payment
         
         if result[:success]
-          # Send confirmation email
-          OrderMailer.with(order: @order).confirmation_email.deliver_later
-          
+          # Payment successful redirect
           redirect_to confirmation_order_path(@order), notice: 'Payment successful! Your order has been confirmed.'
         else
           # Payment failed
           Rails.logger.error("Payment failed: #{result[:error]}")
-          redirect_to order_path(@order), alert: "Payment failed: #{result[:error]}"
+          redirect_to payment_order_path(@order), alert: "Payment failed: #{result[:error]}"
         end
       else
         # No payment method provided - redirect to payment page
         redirect_to payment_order_path(@order), notice: 'Order created. Please complete your payment.'
       end
     else
-      @addresses = current_user.addresses
-      @provinces = Province.all
-      @address = address
-      render :checkout
+      # If save fails, redirect back to cart
+      redirect_to cart_path, alert: 'There was a problem creating your order.'
     end
   end
   
@@ -115,11 +117,11 @@ class OrdersController < ApplicationController
   end
   
   def payment
-    @order = current_user.orders.find(params[:id])
+    @order = Order.find(params[:id])
     
     # Only show payment form for pending orders
     unless @order.pending?
-      redirect_to order_path(@order), alert: 'This order has already been processed.'
+      redirect_to root_path, alert: 'This order has already been processed.'
       return
     end
     
@@ -128,11 +130,11 @@ class OrdersController < ApplicationController
   end
   
   def process_payment
-    @order = current_user.orders.find(params[:id])
+    @order = Order.find(params[:id])
     
     # Only process payment for pending orders
     unless @order.pending?
-      redirect_to order_path(@order), alert: 'This order has already been processed.'
+      redirect_to root_path, alert: 'This order has already been processed.'
       return
     end
     
@@ -141,9 +143,7 @@ class OrdersController < ApplicationController
     result = service.process_payment
     
     if result[:success]
-      # Send confirmation email
-      OrderMailer.with(order: @order).confirmation_email.deliver_later
-      
+      # Payment successful redirect
       redirect_to confirmation_order_path(@order), notice: 'Payment successful! Your order has been confirmed.'
     else
       # Log error and redirect
@@ -153,11 +153,11 @@ class OrdersController < ApplicationController
   end
   
   def confirmation
-    @order = current_user.orders.find(params[:id])
+    @order = Order.find(params[:id])
     
     # Only allow viewing if paid
     unless @order.paid?
-      redirect_to order_path(@order), alert: 'This order has not been paid yet.'
+      redirect_to root_path, alert: 'This order has not been paid yet.'
     end
   end
   

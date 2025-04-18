@@ -69,7 +69,9 @@
               
               <div class="mb-3">
                 <label for="cardholder-email" class="form-label">Email</label>
-                <input id="cardholder-email" type="email" value="<%= current_user.email %>" class="form-control" required>
+                <input id="cardholder-email" name="email" type="email" 
+                       value="<%= user_signed_in? ? current_user.email : @order.email %>" 
+                       class="form-control" required>
               </div>
               
               <div class="mb-3">

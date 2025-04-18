@@ -6,10 +6,11 @@
 # db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
 
-
-
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_233422) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_18_182308) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,7 +91,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_233422) do
     t.bigint "order_id", null: false
     t.bigint "product_id", null: false
     t.integer "quantity"
-    #  stores the product's price 3.3.2
     t.decimal "price_at_purchase"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -99,7 +99,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_233422) do
   end
 
   create_table "orders", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.integer "status"
     t.decimal "subtotal"
     t.decimal "gst_rate"
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_233422) do
     t.datetime "updated_at", null: false
     t.string "payment_id"
     t.string "payment_status"
+    t.string "email"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 

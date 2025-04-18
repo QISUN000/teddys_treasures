@@ -140,11 +140,15 @@
                 </div>
                 <div class="d-flex justify-content-between mb-1">
                   <span>Shipping</span>
-                  <span>—</span>
+                  <span id="shipping-cost">—</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Tax</span>
+                  <span id="tax-amount">—</span>
                 </div>
                 <div class="d-flex justify-content-between fw-bold">
                   <span>Total</span>
-                  <span><%= number_to_currency(cart_total / 100.0) %></span>
+                  <span id="total-with-tax-shipping"><%= number_to_currency(cart_total / 100.0) %></span>
                 </div>
               </div>
               
@@ -180,7 +184,7 @@
                   
                   <div class="mb-3">
                     <%= f.label :province_id, 'Province', class: 'form-label' %>
-                    <%= f.collection_select 'address[province_id]', Province.all, :id, :name, {}, class: 'form-select', required: true %>
+                    <%= f.collection_select 'address[province_id]', Province.all, :id, :name, {}, class: 'form-select', id: 'province-selector', required: true %>
                   </div>
                   
                   <hr class="my-4">
@@ -223,5 +227,63 @@
         this.closest('form').submit();
       });
     });
+
+    // Province-based tax and shipping calculator
+    const provinceSelector = document.getElementById('province-selector');
+    if (provinceSelector) {
+      // Define tax rates and shipping fees by province
+      const provinceTaxRates = {
+        // Sample values - replace with actual province IDs and rates
+        '1': { name: 'Alberta', taxRate: 0.05, shippingFee: 1200 },         // 5% GST
+        '2': { name: 'British Columbia', taxRate: 0.12, shippingFee: 1500 }, // 7% PST + 5% GST
+        '3': { name: 'Manitoba', taxRate: 0.13, shippingFee: 1500 },         // 8% PST + 5% GST
+        '4': { name: 'New Brunswick', taxRate: 0.15, shippingFee: 1800 },     // 15% HST
+        '5': { name: 'Newfoundland and Labrador', taxRate: 0.15, shippingFee: 2000 }, // 15% HST
+        '6': { name: 'Northwest Territories', taxRate: 0.05, shippingFee: 2500 }, // 5% GST
+        '7': { name: 'Nova Scotia', taxRate: 0.15, shippingFee: 1800 },       // 15% HST
+        '8': { name: 'Nunavut', taxRate: 0.05, shippingFee: 3000 },           // 5% GST
+        '9': { name: 'Ontario', taxRate: 0.13, shippingFee: 1500 },           // 13% HST
+        '10': { name: 'Prince Edward Island', taxRate: 0.15, shippingFee: 1800 }, // 15% HST
+        '11': { name: 'Quebec', taxRate: 0.14975, shippingFee: 1500 },         // 9.975% QST + 5% GST
+        '12': { name: 'Saskatchewan', taxRate: 0.11, shippingFee: 1500 },      // 6% PST + 5% GST
+        '13': { name: 'Yukon', taxRate: 0.05, shippingFee: 2500 }             // 5% GST
+      };
+
+      // Get cart subtotal in cents
+      const subtotalText = document.querySelector('.col-md-6 .d-flex.justify-content-between.mb-1:first-child span:last-child').textContent;
+      const subtotalCents = parseFloat(subtotalText.replace(/[^0-9.]/g, '')) * 100;
+
+      provinceSelector.addEventListener('change', function() {
+        const provinceId = this.value;
+        const provinceData = provinceTaxRates[provinceId];
+        
+        if (provinceData) {
+          // Update shipping cost
+          const shippingCost = provinceData.shippingFee;
+          const shippingElement = document.getElementById('shipping-cost');
+          shippingElement.textContent = formatCurrency(shippingCost / 100);
+          
+          // Calculate tax
+          const taxAmount = Math.round(subtotalCents * provinceData.taxRate);
+          const taxElement = document.getElementById('tax-amount');
+          taxElement.textContent = formatCurrency(taxAmount / 100);
+          
+          // Update total
+          const totalWithTaxAndShipping = subtotalCents + taxAmount + shippingCost;
+          const totalElement = document.getElementById('total-with-tax-shipping');
+          totalElement.textContent = formatCurrency(totalWithTaxAndShipping / 100);
+        } else {
+          // Reset if no province data found
+          document.getElementById('shipping-cost').textContent = '—';
+          document.getElementById('tax-amount').textContent = '—';
+          document.getElementById('total-with-tax-shipping').textContent = subtotalText;
+        }
+      });
+      
+      // Helper function to format currency
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+      }
+    }
   });
 </script>

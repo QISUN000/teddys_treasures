@@ -94,6 +94,8 @@
         <%= link_to 'Continue Shopping', products_path, class: 'btn btn-primary' %>
         <% if user_signed_in? %>
           <%= link_to 'View All Orders', orders_path, class: 'btn btn-outline-secondary' %>
+        <% else %>
+          <%= link_to 'Register for an Account', new_user_registration_path, class: 'btn btn-outline-secondary' %>
         <% end %>
       </div>
     </div>
